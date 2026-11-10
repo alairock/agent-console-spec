@@ -146,8 +146,9 @@ Append-only `job_events (seq, job_id, at, type, data)`, also streamed to the UI 
 
 ### Billing guard
 
-Record the init message's billing source on every job. Anything other than the subscription marks the job `failed`.
-Refuse to start any job while an API key variable is set in the console's environment. See
+Record the init message's billing source on every job. Anything other than the billing you chose marks the job
+`failed`. If you chose subscription billing, refuse to start any job while an API key variable is set in the
+console's environment. See
 [Security and billing](10-security-and-billing.md).
 
 ## Acceptance checks

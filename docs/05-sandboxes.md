@@ -39,7 +39,7 @@ sequenceDiagram
   C->>C: queued → provisioning (slot free)
   C->>P: clone template as lab-job-<id>, tags: ephemeral, job-<id>
   P-->>C: VM ready (~30s)
-  C->>V: start stack (lab jobs only; triage skips it)
+  C->>V: start stack (lab jobs only, triage skips it)
   V-->>C: streamed as log events
   C->>V: start agent over ssh (transport), token on stdin
   V-->>C: stream-json messages

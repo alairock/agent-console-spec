@@ -24,15 +24,16 @@ flowchart LR
   subgraph Private["Behind login proxy + allowlist"]
     UI[UI / API]
   end
-  subgraph Console host
+  subgraph CH0["Console host"]
+    CON[Console]
     SEC[(env file, mode 600<br/>console DB)]
   end
   subgraph Sandbox["Per-job sandbox (throwaway)"]
     AG[Agent]
   end
-  H --> Console
-  UI --> Console
-  Console -->|token on stdin, per call| AG
+  H --> CON
+  UI --> CON
+  CON -->|token on stdin, per call| AG
   AG -. never .-> SEC
   AG -->|push branches, open PRs| CH[(Code host)]
   AG -. never .-> MAIN[main]

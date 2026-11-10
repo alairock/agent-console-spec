@@ -62,13 +62,15 @@ A long job you're chatting with isn't "stuck". The stuck rule only fires when **
 
 - Every 5 minutes, list open PRs across your repos. A PR names its ticket by ID (in its branch, title or body)
   or is attached to one in the tracker.
-- A person's PR with no ticket gets one (To Review, or In Progress for a draft), so every change is on the board.
-  Bot PRs are listed without one.
+- Any PR with no ticket (a person's, an agent's, or a dependency bot's) gets one (To Review, or In Progress for a
+  draft), so every change is on the board. A bot PR's ticket keeps only the first paragraph of its body.
 - **Intake review:** a non-draft PR opened by someone other than the console's primary user (say, a designer or a
   teammate new to the codebase) gets one `review` job, once, after it has a ticket. The review merges the base in, makes
   CI green, reviews adversarially, fixes Critical/High issues, and leads its comment with a plain-language summary.
   This means a non-engineer's PR arrives ready to review, not as a list of things they can't act on.
-- Each PR gets one automatic review ever. A manual "AI Review" button can start more.
+- Bot PRs, and agent PRs for tickets the error sweep filed, get a plain AI review the same way.
+- Each PR gets one automatic review ever. A manual "AI Review" button can start more. Only a few reviews start per
+  pass, so a batch of dependency bumps doesn't start a sandbox each at once.
 
 ## Error-tracker sweep
 

@@ -2,10 +2,13 @@
 
 ## The problem it solves
 
-Agents make one engineer fast. A team needs something different. I wrote skills for my workflow and told
-people to use them, but I had no way to know whether they did. The shipping process (investigate, reproduce, write a
-failing test, fix, verify independently, open a PR with proof) lived in my head and in a few prompt files. Each
-session might follow it or might not.
+Agents make one engineer fast. A team needs something different. You can write skills for your workflow and ask
+everyone to use them, but you can't tell whether a given session did. The shipping process (investigate, reproduce,
+write a failing test, fix, verify independently, open a PR with proof) lives in a few heads and a few prompt files.
+Any session might follow it or might not.
+
+What I had before was a few hand-built, long-lived agent boxes with no browser, one shared database leaking
+between sessions, and no idle timeout. One session held a box for 54 days. Every run was a little different.
 
 The console fixes that by **making the process the only path**. A ticket enters through one door. The job's
 prompt, tools and sandbox are fixed by its kind. The result has to come back as a structured outcome, and the
@@ -29,13 +32,13 @@ flowchart LR
 
 ## Own the robot
 
-When manufacturing automated, the biggest gains didn't go to the companies selling general-purpose robots. They
-went to the manufacturers who built machines for **their own line**, because the line was their advantage. I
-think agent tooling will go the same way: every serious team ends up with an internal agent platform shaped like
-its process.
+A friend I demoed this to put it in terms of the assembly line. When car making automated, the biggest gains
+didn't go to the companies selling general-purpose robots. They went to the manufacturers who built machines for
+**their own line**, because the line was their advantage. Agent tooling will likely go the same way: every
+serious team ends up with an internal agent platform shaped like its process.
 
 Off-the-shelf products exist and some are good. They're built for everyone's process, so you end up bending your
-process to fit them. The console is small enough (about a week to a useful version) that building it is cheap
+process to fit them. The console is small enough (a few days to a useful version) that building it is cheap
 compared with the leverage, and you can change it the same afternoon your process changes.
 
 That's also why this repo is specs and prompts, not code. My code is shaped like my line. Yours should be shaped like yours.
@@ -68,13 +71,17 @@ These came out of building and running it. Each doc points back to them.
 10. **Steerable, not just observable.** Every job is a live chat. You can message it mid-run, stop it,
     approve tools and answer its questions. It's a teammate you can lean over, not a batch job.
 
-## What it changed
+## What it's built to do
 
-- Small logic bugs go from ticket to a reviewed-ready PR without anyone touching them.
+- Small logic bugs go from ticket to a review-ready PR without anyone touching them.
 - UI bugs get reproduced in a real browser against real (scrubbed) data before anyone writes a fix.
-- Vague tickets come back as one sharp question with a recommendation instead of "couldn't figure it out".
+- Vague tickets come back as one sharp question with a recommendation instead of "couldn't figure it out". (The
+  experts and the writing rules are what made this happen in practice.)
 - Big asks come back as a plan with sub-tickets. Once a person approves it, it runs child by child.
-- Anyone on the team gets the same process, on their own subscription, under their own name.
+- Anyone on the team gets the same process, on their own account, under their own name.
+
+It's young. Some of these paths have run many times and some only a few, so treat the specs as a design that's
+held up so far, not a finished product.
 
 ## When not to build this
 
