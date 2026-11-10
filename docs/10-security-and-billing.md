@@ -74,6 +74,10 @@ Be honest about these in your own version:
 
 ## Billing: what I did, and the hedge
 
+![The Usage page: jobs per day by kind, tokens per day, weekly limit, and usage by person](img/usage.png)
+
+<sub>Usage: every job records how it was billed, and limits and tokens are shown per person. Real UI, fictional data.</sub>
+
 **What I did.** The console drives the agent CLI through the vendor's Agent SDK, logged in with a long-lived
 subscription token (`claude setup-token`), so usage counts against each owner's Claude subscription rather than
 an API bill. Pricing was the reason.

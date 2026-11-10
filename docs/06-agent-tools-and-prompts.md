@@ -87,6 +87,10 @@ The templates are in [`prompts/`](../prompts/).
 
 ## Experts before people
 
+![A job chat showing a product expert's Decision / Confidence / Why / Reversible / Escalate answer, then the outcome card](img/job-chat.png)
+
+<sub>An expert's answer in the fixed shape (top), then the outcome the console posted: tldr, one ask, folded details. Real UI, fictional data.</sub>
+
 ```mermaid
 flowchart TD
   Q([Agent hits a judgment call]) --> W{Which area?}

@@ -5,6 +5,10 @@ runs a coding agent on each one in its own throwaway sandbox, shows every run as
 does all the ticket bookkeeping itself. I built one for my team. This repo has the **why, the how and the prompts**
 so you can build your own version with your own agents. It has no code.
 
+![A ticket in my console: the PR with green CI, sub-issues, signed agent comments with one plain-words ask, and the live job chat beside it](docs/img/ticket.png)
+
+<sub>My real console UI. All data shown is fictional: a made-up company, people and tickets served by a mock API.</sub>
+
 Why no code? Mine is tied to my company's tracker, cloud, repos and domain, and untangling that would leave you a
 worse starting point than a clear spec. A spec also suits the thesis below: the console is worth building because
 it encodes **your** process. Copy the ideas and replace the parts that don't fit.

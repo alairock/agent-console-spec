@@ -5,6 +5,10 @@ job survives restarts and idle time.
 
 ## Why
 
+![The Jobs page: runs waiting on you, running, and finished runs labelled by what they did](img/jobs.png)
+
+<sub>Every job, labelled by what it did rather than the column it set. Real UI, fictional data.</sub>
+
 - **The transcript is the job.** Every SDK message, human message, permission request and console note goes into
   one append-only log. The UI, the usage numbers, recovery and summaries all read from it.
 - **Like a terminal session, not a batch run.** When a turn finishes, the session stays open waiting for you,

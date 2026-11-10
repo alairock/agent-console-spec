@@ -19,6 +19,10 @@ the job's outcome decides which column the ticket lands in next.
 
 ### Columns
 
+![The board: agent columns, in-flight work, Needs you and Done, with live agent badges on cards](img/board.png)
+
+<sub>The board. Cards in agent columns show which agent is on them; the sidebar lists live chats and VMs. Real UI, fictional data.</sub>
+
 | Column | Who acts | What a person sees there |
 |---|---|---|
 | **Agent Queue** | Triage job | Nothing yet; a job starts within seconds |

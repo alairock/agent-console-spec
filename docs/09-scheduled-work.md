@@ -15,6 +15,10 @@ and run it on demand.
 
 ## The registry
 
+![The Schedules page: each recurring job with status, last run, next run, pause and run now](img/schedules.png)
+
+<sub>The Schedules page. Real UI, fictional data.</sub>
+
 ```mermaid
 flowchart LR
   REG[Schedules registry] --> SW[Sweeper · 5 min]

@@ -37,6 +37,10 @@ flowchart LR
 
 ## The job chat
 
+![The start of a job chat: the ticket as the first message, provisioning, step summaries and expert calls](img/job-chat-start.png)
+
+<sub>A chat from the start: the ticket, provisioning folded into one card, plain-language step summaries, two expert calls in parallel. Real UI, fictional data.</sub>
+
 Contract for what a person can do to a job:
 
 | Action | Allowed in | Effect |
@@ -82,6 +86,10 @@ reach gets checked. Every claim needs evidence (file:line, a query, a link). Eve
 expert said to escalate.
 
 ## Comments name their speaker
+
+![A ticket page with agent comments colored and labelled by speaker](img/ticket.png)
+
+<sub>Signed comments render as the agent that wrote them, linked to its job. Real UI, fictional data.</sub>
 
 The console usually writes to the tracker as one account (or as the job's owner). Without a marker, every comment
 looks like a person wrote it. So every console-written comment ends with a signature line:
