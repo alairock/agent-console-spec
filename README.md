@@ -7,7 +7,10 @@ so you can build your own version with your own agents. It has no code.
 
 ![A ticket in my console: the PR with green CI, sub-issues, signed agent comments with one plain-words ask, and the live job chat beside it](docs/img/ticket.png)
 
-<sub>My real console UI. All data shown is fictional: a made-up company, people and tickets served by a mock API.</sub>
+> [!NOTE]
+> The screenshots throughout these docs are from **my own build** of this spec. They show one way the design can
+> look in practice, not a product you can install. Yours will look different, because it should fit your process.
+> All data in them is fictional.
 
 Why no code? Mine is tied to my company's tracker, cloud, repos and domain, and untangling that would leave you a
 worse starting point than a clear spec. A spec also suits the thesis below: the console is worth building because
