@@ -119,15 +119,19 @@ flowchart LR
 - **Frontmatter** on each kind sets `model` (build, reviewers, the approver and experts on the strongest model;
   summaries on a small one) and `disallowedTools` (the umbrella sort and error-sweep can't edit files, review can't
   drive the browser).
-- **Reviewers and the approver are prompt files too.** One file per lens, passed to the job as subagents beside the
-  experts, and one for the approver model with its answer shape.
+- **Reviewers and the approver are prompt files too.** One file per lens ([`prompts/reviewers/`](../prompts/reviewers/)),
+  passed to the job as subagents beside the experts, and one for the approver model with its answer shape
+  ([`prompts/approver.md`](../prompts/approver.md)).
+- **The console's mid-job messages are files.** What it sends a build job on red CI, green CI and review changes
+  lives in [`prompts/messages/`](../prompts/messages/), so the wording is reviewed like any prompt.
 - **The first message is the ticket**, including every comment with its author. Comments the console signed are
   shown as `<name> (an agent, not a person)` so agents don't treat an earlier agent's guess as a human decision.
 - **The project's own instruction files still load.** The runtime loads the repo's skills, subagents and
   instruction file, so the console's prompts add the process on top of the codebase's conventions without
   repeating them.
 
-The templates are in [`prompts/`](../prompts/).
+The templates are in [`prompts/`](../prompts/): start with [`common.md`](../prompts/common.md) and
+[`build.md`](../prompts/build.md).
 
 ## Experts before people
 

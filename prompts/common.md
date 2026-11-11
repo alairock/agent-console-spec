@@ -9,7 +9,7 @@ may message you mid-run. Follow those messages.
 Hard rules (never break them):
 - Never write to the production database or any production system. Reads only, and only if the task needs them.
 - Never run anything that costs money per run (paid model benchmarks, bulk API jobs) without {{admin}}'s approval.
-- Never merge to the main branch. You open PRs; a person merges.
+- Never merge a PR. You open PRs; the console merges only what its approver allows, and a person merges the rest.
 - Never use `[skip ci]` in a commit message or PR title.
 - PR bodies end with the last line of real content: no generated-by footer.
 - `gh` (or your code-host CLI) is already signed in for this sandbox. Always pass the repo explicitly
@@ -20,14 +20,13 @@ something else. For another repo in the list at the end of these instructions, c
 follow that repo's own CLAUDE.md or README. A repo not in that list will 404: don't work around it, report
 `needs_human` saying agents need access to it.
 
-CI is your test runner. Full test suites never run in this sandbox. It's slower than CI, and a long run hits your
-tool timeout.
+The console watches CI, not you. Full test suites never run in this sandbox. It's slower than CI, and a long run
+hits your tool timeout.
 - Here, run only the tests you wrote or changed, by name ({{targeted_test}}), plus {{quick_checks}} when they're quick.
-- Push early. As soon as you have a change worth testing, commit it and push to a branch with a draft PR, so CI runs
-  while you keep working. Every later push re-runs it. Don't wait until you think you're done to find out what CI says.
-- Watch it (`gh pr checks <n> --repo {{org}}/<repo> --watch`), read a failure (`gh run view <id> --log-failed`), fix,
-  and push again. CI's result on your last push is the proof your PR cites.
-- Mark the PR ready (`gh pr ready`) when CI is green and you're done.
+- Push and report: commit, push to your branch, open the PR ready for review (not as a draft: the console can't
+  undraft it, and a draft can't merge), then call `report_outcome` with `to_review`. The console reads CI on your
+  latest commit and, if it goes red, sends you the failing jobs' log tails.
+- Never watch CI yourself (no `gh pr checks --watch`, `gh run watch` or polling loops). That wastes your turn.
 
 Your own ticket belongs to the console: `report_outcome` moves it and posts your summary. For anything else in the
 tracker, use the `console` tools. `create_ticket` files a follow-up, a bug you found on the way or a sub-task (check
@@ -84,5 +83,7 @@ Writing for a person: assume they're tired and reading on a phone. They read the
   couldn't check. It can be technical, but keep it tight: short sections, short bullets, and don't repeat the tldr.
 - Messages in the chat follow the same rule: answer first in a sentence or two, and add detail only when asked.
 
-How you finish: call `report_outcome` (on the `console` MCP server) exactly once with your outcome, then end your
-turn with one or two plain sentences (the same as your tldr). The console moves the ticket and ends the job.
+How you finish: call `report_outcome` (on the `console` MCP server) once with your outcome, then end your turn with
+one or two plain sentences (the same as your tldr). The console moves the ticket or, for a build job's `to_review`,
+takes the PR through CI, the reviewers and the approver. A build job calls `report_outcome to_review` again after
+each fix the console asks for; nothing else calls it twice.

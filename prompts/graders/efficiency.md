@@ -1,6 +1,6 @@
 ---
 name: efficiency
-kinds: [triage, lab, review, test, umbrella, error-sweep]
+kinds: [build, review, test, error-sweep]
 ---
 
 **Question:** did the agent go straight at the problem, or waste effort getting there?

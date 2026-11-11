@@ -54,7 +54,7 @@ still goes to Needs Human first.
 
 ## Builder
 
-The same agent goes on to build:
+The same agent goes on to build ([`prompts/build.md`](../prompts/build.md)):
 
 - It writes a short spec at the top of the PR: the problem, the approach, and how it proves the fix.
 - It writes a failing test first, then the fix.
@@ -73,7 +73,7 @@ CI already runs format, lint and the test suites. The gate doesn't repeat them. 
 the console, not a model.
 
 - The console polls CI on each PR's latest commit. A new commit re-arms it.
-- **Red:** it hands the builder the failing jobs' log tails and the job goes back to stage `build`. The builder fixes,
+- **Red:** it hands the builder the failing jobs' log tails (the `gate-red` message) and the job goes back to stage `build`. The builder fixes,
   pushes, and the gate runs again.
 - **Green:** reviews start.
 - **Stops:** 5 red rounds, CI not finished within 90 minutes, or a PR merged or closed under it. Each sends the ticket
@@ -81,7 +81,9 @@ the console, not a model.
 
 ## Reviews
 
-Each reviewer is a subagent with one lens and a fresh context. They run in parallel inside the builder's job, and
+Each reviewer is a subagent with one lens and a fresh context ([`prompts/reviewers/`](../prompts/reviewers/)).
+The console starts them with its `review-start` message, and sends findings back with `review-changes`
+([`prompts/messages/`](../prompts/messages/)). They run in parallel inside the builder's job, and
 each calls `report_review` with its own verdict. The builder can't report a verdict for them.
 
 | Lens | Runs when |
@@ -114,7 +116,7 @@ The approver has two parts, in this order:
    - every lens passed
    - no changed file is under a reserved path
    - today's auto-merges are under the daily cap
-2. **A model.** It sees the diff, the risk rating, every review and the CI result, and answers
+2. **A model** ([`prompts/approver.md`](../prompts/approver.md)). It sees the diff, the risk rating, every review and the CI result, and answers
    `{decision: merge | escalate, reason}`. An answer it can't read is escalate.
 
 The model can only narrow the policy, never widen it. Merge happens only when both say yes.
@@ -154,7 +156,7 @@ tasks. [Epics and umbrellas](07-epics-and-umbrellas.md) has the contract.
 ## PRs a person opened
 
 A PR a person opened skips intake and the builder. Once its CI is green on the latest commit, it gets the same
-reviewers in a `review` job, and one comment with their findings, led by a plain-language summary. The ticket goes to
+reviewers in a `review` job ([`prompts/review.md`](../prompts/review.md)), and one comment with their findings, led by a plain-language summary. The ticket goes to
 To Review, or Needs Human if a finding needs an answer first. The job doesn't push to someone else's PR. See
 [Scheduled work](09-scheduled-work.md#pr-sync-and-intake-review).
 

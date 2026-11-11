@@ -1,6 +1,6 @@
 ---
 name: instruction-adherence
-kinds: [triage, lab, review, test, umbrella, error-sweep]
+kinds: [build, review, test, error-sweep]
 ---
 
 **Question:** did the agent follow its prompt (`common.md`, its kind's file, any add-ons)?

@@ -10,7 +10,7 @@ person approves every edit, and a chart shows whether it helped.
   that jobs got slower or more expensive. Grading the transcript finds what the summary hides.
 - **The transcripts are already here.** Every job's full event log, tool calls, outcome, PR and ticket move live in
   the console DB. There's nothing to collect; there's only something to read.
-- **Prompts are the process, so they're what to tune.** A fix to the build prompt reaches every future build job. Most
+- **Prompts are the process, so they're what to tune.** A fix to [`build.md`](../prompts/build.md) reaches every future build job. Most
   failures trace back to one missing or misleading line.
 - **Memory you can't see isn't enough.** An agent that "learns overnight" changes in ways nobody can review. Here
   every change is a prompt diff a person approves, and every score is tied to the prompt version that produced it.
