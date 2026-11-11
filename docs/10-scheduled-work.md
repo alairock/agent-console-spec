@@ -1,4 +1,4 @@
-# 9. Scheduled work
+# 10. Scheduled work
 
 Some work starts on a timer, not a ticket move. All of it goes through one registry so you can see it, pause it
 and run it on demand.
@@ -70,7 +70,7 @@ A long job you're chatting with isn't "stuck". The stuck rule only fires when **
 
 For every build job in stage `gate`, read CI on each PR's latest commit. Red hands the builder the failing log;
 green starts the reviews; the caps send the ticket to Needs Human. After an auto-merge, the same loop watches the
-deploy checks on the merge commit. See [The pipeline](13-pipeline.md#the-gate).
+deploy checks on the merge commit. See [The pipeline](03-pipeline.md#the-gate).
 
 ## PR sync and intake review
 
@@ -106,7 +106,7 @@ One ticket per error-tracker issue, ever. That's tracked in the console DB.
 
 Fetch each watched page (the provider's terms for using the agent SDK with a subscription, and its legal and compliance
 page), reduce it to text and hash it. A changed hash shows a banner until someone acknowledges it. See
-[Security and billing](10-security-and-billing.md) for why.
+[Security and billing](11-security-and-billing.md) for why.
 
 ## Sandbox reaper and backups
 
@@ -120,7 +120,7 @@ These are OS timers on the console host. The UI shows them read-only, since chan
 ## Grading and the improver
 
 Every ended job is measured and graded, and once a day an improver agent reads the failures and proposes prompt
-edits for a person to approve. That loop has its own doc: [Self-improvement](12-self-improvement.md).
+edits for a person to approve. That loop has its own doc: [Self-improvement](13-self-improvement.md).
 
 ## Acceptance checks
 

@@ -1,4 +1,4 @@
-# 10. Security and billing
+# 11. Security and billing
 
 The console controls agents that push code and read your team's context. Treat it like CI with a chat window: a
 privileged system whose blast radius you design on purpose.

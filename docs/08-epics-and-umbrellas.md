@@ -1,7 +1,7 @@
-# 7. Epics and umbrellas
+# 8. Epics and umbrellas
 
 When intake finds a parent, or a ticket too big for one PR, it splits instead of building (see
-[The pipeline](13-pipeline.md#splitting)). There are two kinds of split. An **epic** is one feature split into ordered
+[The pipeline](03-pipeline.md#splitting)). There are two kinds of split. An **epic** is one feature split into ordered
 parts that land on a shared feature branch. An **umbrella** is a parent whose sub-issues are independent tasks that
 just need sorting. Either way, each sub-issue runs the whole pipeline as its own build job.
 

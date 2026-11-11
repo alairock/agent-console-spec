@@ -41,7 +41,7 @@ when the console's `review-start` message names them; a review job picks them it
 
 ## The pipeline's other prompts
 
-A build job runs the [pipeline](../docs/13-pipeline.md). Three more kinds of file drive it:
+A build job runs the [pipeline](../docs/03-pipeline.md). Three more kinds of file drive it:
 
 | File | Who reads it | What it is |
 |---|---|---|
@@ -84,7 +84,7 @@ Fill these in from your config when the prompt is built, or replace them once by
 ## The tools these prompts mention
 
 All are served by the console itself as an MCP server named `console`. See
-[docs/06](../docs/06-agent-tools-and-prompts.md) for the full contract.
+[docs/07](../docs/07-agent-tools-and-prompts.md) for the full contract.
 
 `report_outcome`, `report_review`, `report_wip`, `attach_screenshots`, `tracker_issue`, `tracker_file`, `create_ticket`,
 `update_ticket`, `chat_search`, `chat_thread`, `errors_list`, `error_issue`, `error_resolve`, `file_error_ticket`,
@@ -96,4 +96,4 @@ All are served by the console itself as an MCP server named `console`. See
 
 `grader.md` is the frame and output format. Each file in `graders/` is one rubric with a `kinds` list in its
 frontmatter, and the console gives the grader the rubrics for the finished job's kind. Rubrics are versioned like
-prompts, because editing one changes the scores. See [docs/12](../docs/12-self-improvement.md).
+prompts, because editing one changes the scores. See [docs/13](../docs/13-self-improvement.md).

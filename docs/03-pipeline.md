@@ -1,4 +1,4 @@
-# 13. The pipeline
+# 3. The pipeline
 
 A ticket runs as **one build job** on its own sandbox. The job moves through stages: intake, builder, gate, reviews
 and approver. Work that fails a stage goes back to the same builder, which still has its context. Work that needs a
@@ -135,7 +135,7 @@ After an auto-merge the console watches the deploy checks on the merge commit fo
 ticket to Needs Human and turns that repo's auto-merge back off. A person turns it on again.
 
 When the ticket is Done, a model posts a short Problem / Fix comment in plain words (see
-[Scheduled work](09-scheduled-work.md)). New errors the deploy causes reach the daily error sweep and become tickets.
+[Scheduled work](10-scheduled-work.md)). New errors the deploy causes reach the daily error sweep and become tickets.
 
 ## Splitting
 
@@ -151,14 +151,14 @@ whole pipeline as its own build job on its own sandbox. The console starts each 
   from multiplying jobs.
 
 Whether siblings run in parallel or in order is a property of their parent: one feature, or a bundle of unrelated
-tasks. [Epics and umbrellas](07-epics-and-umbrellas.md) has the contract.
+tasks. [Epics and umbrellas](08-epics-and-umbrellas.md) has the contract.
 
 ## PRs a person opened
 
 A PR a person opened skips intake and the builder. Once its CI is green on the latest commit, it gets the same
 reviewers in a `review` job ([`prompts/review.md`](../prompts/review.md)), and one comment with their findings, led by a plain-language summary. The ticket goes to
 To Review, or Needs Human if a finding needs an answer first. The job doesn't push to someone else's PR. See
-[Scheduled work](09-scheduled-work.md#pr-sync-and-intake-review).
+[Scheduled work](10-scheduled-work.md#pr-sync-and-intake-review).
 
 ## Settings to choose
 
@@ -197,7 +197,7 @@ report_review({
   wrote.
 
 The job record carries `stage` (`intake` | `build` | `gate` | `review` | `approve`), `rounds` (`{gate, review}`) and
-`gate` (the PRs and their commits, the lenses, the reviews, and the deploy watch). See [Jobs](04-jobs.md).
+`gate` (the PRs and their commits, the lenses, the reviews, and the deploy watch). See [Jobs](05-jobs.md).
 
 ## Acceptance checks
 

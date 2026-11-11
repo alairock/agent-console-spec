@@ -1,4 +1,4 @@
-# 3. Board and routing
+# 4. Board and routing
 
 The tracker's board is the console's input and its output. Moving a ticket into an agent column starts a job, and
 the job's outcome decides which column the ticket lands in next.
@@ -60,7 +60,7 @@ stateDiagram-v2
 
 ### Inside the job
 
-A build job runs the [pipeline](13-pipeline.md): intake, builder, gate, reviews, approver. Intake decides first and
+A build job runs the [pipeline](03-pipeline.md): intake, builder, gate, reviews, approver. Intake decides first and
 applies the **first** rule that matches:
 
 ```mermaid
@@ -90,11 +90,11 @@ whatever the outcome; the column carries the meaning.
 
 | Job kind | Outcome | Column | The console also |
 |---|---|---|---|
-| build | `to_review` + PRs | (stays In Progress) | starts **the gate**: the run stays up while CI, reviews and the approver run (see [The pipeline](13-pipeline.md)); the first time, comments the report and PR links |
+| build | `to_review` + PRs | (stays In Progress) | starts **the gate**: the run stays up while CI, reviews and the approver run (see [The pipeline](03-pipeline.md)); the first time, comments the report and PR links |
 | build | `plan_review` | Plan Review | creates `sub_issues` as children; comments the plan |
 | build | `needs_human` | Needs Human | comments the questions or the risk |
 | build | `attempt_failed` | (no move) | `attempts += 1`; below 3, tells the agent to start a fresh attempt; at 3, applies `needs_human` |
-| build, on a parent | `umbrella` | In Progress | routes each sub-issue (see [Epics and umbrellas](07-epics-and-umbrellas.md)) |
+| build, on a parent | `umbrella` | In Progress | routes each sub-issue (see [Epics and umbrellas](08-epics-and-umbrellas.md)) |
 | review | `to_review` / `needs_human` | To Review / Needs Human | comments the review |
 | any | job crashed, hit the 8h cap, park failed, or ended with no outcome | Needs Human | comments why |
 
@@ -110,7 +110,7 @@ The pipeline then moves the ticket on its own:
 When a job first reaches `running`, the console comments a link to the job's chat and moves the ticket to In Progress.
 
 Every comment has the same shape: a one or two sentence `tldr`, an optional single yes/no `ask`, and the
-`summary` folded under "Details". See [The human side](08-humans.md).
+`summary` folded under "Details". See [The human side](09-humans.md).
 
 ### Job kinds
 
@@ -137,7 +137,7 @@ The console parses the line back out. The ticket page shows those comments with 
 and links to the job. Agents reading a ticket see the author as `<name> (an agent, not a person)`, so they don't
 treat another agent's guess as a human decision.
 
-With per-person tracker credentials ([The human side](08-humans.md)), the account is the job's owner, and the
+With per-person tracker credentials ([The human side](09-humans.md)), the account is the job's owner, and the
 signature still says it was an agent.
 
 ### Inbound hook

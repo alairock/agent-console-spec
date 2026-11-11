@@ -1,4 +1,4 @@
-# 11. Build order
+# 12. Build order
 
 Build it in phases. Each phase is useful by itself and ends with checks that must pass before you start the next.
 My first useful version took about two days, and the version these docs describe took about a week.
@@ -78,7 +78,7 @@ idempotent deploy script that ships the committed HEAD.
 
 ### 5. The gate, reviewers and approver
 
-See [The pipeline](13-pipeline.md). Build them in this order, each on top of the last:
+See [The pipeline](03-pipeline.md). Build them in this order, each on top of the last:
 
 - [ ] **Gate.** `to_review` moves the job to stage `gate`. Red CI hands the builder the log; a new push re-arms it;
   the caps land in Needs Human.
@@ -100,11 +100,11 @@ where intake goes from *"tried some things, couldn't figure it out"* to answers 
 ### 7. Splitting, sweeper, policy watch
 
 Plans and epics, umbrella sorts, nesting with a depth cap, the sweeper and the policy watch. See
-[Epics and umbrellas](07-epics-and-umbrellas.md) and [Scheduled work](09-scheduled-work.md).
+[Epics and umbrellas](08-epics-and-umbrellas.md) and [Scheduled work](10-scheduled-work.md).
 
 ### 8. More than one person
 
-Owners, per-person subscriptions and connections, the setup gate. See [The human side](08-humans.md).
+Owners, per-person subscriptions and connections, the setup gate. See [The human side](09-humans.md).
 
 ### 9. Scheduled work
 
@@ -115,9 +115,9 @@ outcomes. Add the Schedules page so it all stays visible.
 ### 10. Self-improvement and production access
 
 Once jobs run every day, grade them. Stamp each job with its prompt versions first, then add counted facts, then
-three rubrics, then the daily improver and the Self-improvement page. See [Self-improvement](12-self-improvement.md).
+three rubrics, then the daily improver and the Self-improvement page. See [Self-improvement](13-self-improvement.md).
 In the same phase, put every production tool behind a person's approval and one access log
-([Production tools need a person](06-agent-tools-and-prompts.md#production-tools-need-a-person)).
+([Production tools need a person](07-agent-tools-and-prompts.md#production-tools-need-a-person)).
 
 ## Using agents to build it
 

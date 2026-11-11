@@ -1,4 +1,4 @@
-# 8. The human side
+# 9. The human side
 
 The console is where people watch, steer and decide. Agents do the work. The UI's job is to make the few moments
 a person is needed fast and obvious.
@@ -33,9 +33,9 @@ flowchart LR
 | **Jobs list** | One row per run, labelled by what it *did* ("opened PR", "asked a question"), not by the column it set. |
 | **Usage** | Tokens per job, subscription limit windows per account, sandbox cost, per person. The billing proof (`apiKeySource`) per job. |
 | **Schedules** | Every recurring job with cadence, last result and next run. Pause, resume and run now. |
-| **Production access** | Every production read an agent asked for: the query or ids, the reason, who approved or denied it, the result. See [Production tools need a person](06-agent-tools-and-prompts.md#production-tools-need-a-person). |
-| **Self-improvement** | Scores per job kind over time with a marker at each prompt version, the proposals inbox, grader runs and failure themes. See [Self-improvement](12-self-improvement.md). |
-| **Settings** | Each person connects their own accounts. See [More than one person](#more-than-one-person). Admins set the pipeline: auto-merge per repo, risk limits, the daily cap, reserved paths (see [Settings to choose](13-pipeline.md#settings-to-choose)). |
+| **Production access** | Every production read an agent asked for: the query or ids, the reason, who approved or denied it, the result. See [Production tools need a person](07-agent-tools-and-prompts.md#production-tools-need-a-person). |
+| **Self-improvement** | Scores per job kind over time with a marker at each prompt version, the proposals inbox, grader runs and failure themes. See [Self-improvement](13-self-improvement.md). |
+| **Settings** | Each person connects their own accounts. See [More than one person](#more-than-one-person). Admins set the pipeline: auto-merge per repo, risk limits, the daily cap, reserved paths (see [Settings to choose](03-pipeline.md#settings-to-choose)). |
 
 ## The job chat
 

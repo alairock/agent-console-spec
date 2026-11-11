@@ -40,7 +40,7 @@ flowchart TB
 | **Hooks listener** | Accept only signed webhooks on the one public port | Serve anything else |
 | **Job manager** | Queue, provision, run the agent, handle tools, apply outcomes, run the gate and the approver, sequence epics, park, recover | Let an agent write to its own ticket, or let a model widen the merge policy |
 | **People** | Each person's credentials and what they may do | Hand secrets to job processes |
-| **Scheduler** | Every recurring tick in one registry (see [Scheduled work](09-scheduled-work.md)) | Overlap a run that's already going |
+| **Scheduler** | Every recurring tick in one registry (see [Scheduled work](10-scheduled-work.md)) | Overlap a run that's already going |
 | **Sandboxes** | One per job, cloned from the template, deleted when the job ends | Be shared, or be long-lived |
 
 ## The interfaces to implement
@@ -78,7 +78,7 @@ interface Transport {
 ```
 
 **What I used:** Linear for `Tracker`, exe.dev VMs for `Sandboxes`, and a generated ssh wrapper for `Transport`
-(see [Sandboxes](05-sandboxes.md)). The runtime is Claude Code driven through the Claude Agent SDK's `query()` in
+(see [Sandboxes](06-sandboxes.md)). The runtime is Claude Code driven through the Claude Agent SDK's `query()` in
 streaming-input mode, which gives the console a live message stream, mid-run user messages, interrupts and a
 permission callback. Any runtime with those four features fits.
 
@@ -124,7 +124,7 @@ The console stores as little as possible. Everything a person would look for els
 | Code, PRs, reviews, CI | Code host | Same |
 | Jobs, the full event log, outcomes, reviews, epic/umbrella bookkeeping, pipeline settings, schedule state | Console DB | Only the console needs it; it's the audit trail of every run |
 | Agent sessions for parked jobs | Console disk | So a parked job can resume on a new sandbox |
-| Per-person credentials | Credential proxy where possible, else console DB | See [Security](10-security-and-billing.md) |
+| Per-person credentials | Credential proxy where possible, else console DB | See [Security](11-security-and-billing.md) |
 | Secrets for the console itself | One env file, mode 600 | Never inherited by jobs |
 
 Back up the DB and the session folder nightly. Losing them loses transcripts and in-flight bookkeeping, but not

@@ -1,4 +1,4 @@
-# 12. Self-improvement
+# 13. Self-improvement
 
 The console grades its own jobs, finds the patterns in what went wrong, and proposes edits to its own prompts. A
 person approves every edit, and a chart shows whether it helped.
@@ -108,7 +108,7 @@ turns a pile of scores into "this edit moved efficiency."
 
 ## The improver (daily)
 
-A scheduled job (on the [Schedules](09-scheduled-work.md) page like everything else) that:
+A scheduled job (on the [Schedules](10-scheduled-work.md) page like everything else) that:
 
 1. Reads the last day's failed grades with blame `agent`, grouped by prompt file and by theme.
 2. Skips themes backed by too few failures. One bad run is noise.

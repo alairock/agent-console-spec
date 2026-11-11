@@ -1,4 +1,4 @@
-# 4. Jobs
+# 5. Jobs
 
 A job is one agent run on one ticket in one sandbox. This doc covers the record, the states, the limits, and how a
 job survives restarts and idle time.
@@ -29,7 +29,7 @@ job survives restarts and idle time.
 | `stage` | enum \| null | build jobs: `intake`, `build`, `gate`, `review`, `approve`. Every change is a `stage` event `{from, to, why}` |
 | `rounds` | json | `{gate, review}`: red CI handed back (cap 5) and review changes handed back (cap 3) |
 | `gate` | json \| null | from the first PR on: the PRs and the commit each was checked at, the lenses, the reviews, the deploy watch |
-| `umbrella` | bool | a build job on a parent that sorts its sub-issues ([Epics and umbrellas](07-epics-and-umbrellas.md)) |
+| `umbrella` | bool | a build job on a parent that sorts its sub-issues ([Epics and umbrellas](08-epics-and-umbrellas.md)) |
 | `issue_id`, `identifier`, `title`, `url`, `parent_id` | text | from the tracker event; null for ticketless jobs |
 | `owner` | text | the person the job acts for (whose subscription, whose name) |
 | `state` | enum | see below |
@@ -38,7 +38,7 @@ job survives restarts and idle time.
 | `session_id` | text \| null | the agent session id, for resume |
 | `prompt` | text | the first human message (built from the ticket and its comments) |
 | `model` | text \| null | null = the runtime's default |
-| `prompt_versions` | json | `{file: version}` for every prompt file the job was built from, stamped at start. Lets scores line up with prompt edits ([Self-improvement](12-self-improvement.md)) |
+| `prompt_versions` | json | `{file: version}` for every prompt file the job was built from, stamped at start. Lets scores line up with prompt edits ([Self-improvement](13-self-improvement.md)) |
 | `pid` | int \| null | local pid of the agent process (or its ssh wrapper) while it runs |
 | `hook_key` | text \| null | `<issue_id>:<to_state>`, for idempotency |
 | `base_branch` | text \| null | `feature/<parent>` for an epic child or epic final, else main |
@@ -168,7 +168,7 @@ Append-only `job_events (seq, job_id, at, type, data)`, also streamed to the UI 
 Record the init message's billing source on every job. Anything other than the billing you chose marks the job
 `failed`. If you chose subscription billing, refuse to start any job while an API key variable is set in the
 console's environment. See
-[Security and billing](10-security-and-billing.md).
+[Security and billing](11-security-and-billing.md).
 
 ## Acceptance checks
 

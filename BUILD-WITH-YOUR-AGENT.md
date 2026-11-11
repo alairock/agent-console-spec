@@ -50,11 +50,11 @@ People
 Before any code, write CONTRACT.md for my version: the job record and its states, job kinds, the outcome table
 (outcome, column, what the console does), the pipeline's stages, the approver's policy, the agent tool list with
 schemas, the inbound webhook (with signature), the sweeper rules and every limit (concurrency cap, idle park, hard
-cap, attempts, gate and review rounds, the auto-merge cap, per-tool caps). Use docs/03, 04, 06, 09 and 13 as the
+cap, attempts, gate and review rounds, the auto-merge cap, per-tool caps). Use docs/03, 04, 05, 07 and 10 as the
 template and my answers as the content. Show it to me and wait for my approval. From then on,
 change CONTRACT.md first and the code second.
 
-## 4. Build in phases (docs/11-build-order.md)
+## 4. Build in phases (docs/12-build-order.md)
 For each phase: say what you'll build, build it, run that phase's go/no-go checks for real (not just unit tests),
 and show me the evidence (commands, output, IDs). Don't start the next phase until I've seen the checks pass. If a
 check fails, stop and tell me. Don't work around it.

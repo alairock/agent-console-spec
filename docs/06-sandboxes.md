@@ -1,4 +1,4 @@
-# 5. Sandboxes
+# 6. Sandboxes
 
 Every job runs in its own throwaway VM, cloned from one template and deleted when the job ends. The console never
 runs an agent on its own machine.
@@ -116,7 +116,7 @@ When a bug lives in production data, the agent needs that data without touching 
   The sandboxes never hold a production identity.
 - **Every one of these calls waits for a person.** They're the only console tools that aren't auto-approved. The
   approval card shows the full query or ids and the agent's reason, under a red Production badge. See
-  [Production tools need a person](06-agent-tools-and-prompts.md#production-tools-need-a-person).
+  [Production tools need a person](07-agent-tools-and-prompts.md#production-tools-need-a-person).
 - Every call lands in the **Production access log**: what was run, why, who approved it, and what came back. A
   query's rows are never stored in the log, only its row count.
 - Prompts forbid browsing and forbid pasting personal data into PRs or tickets. Screenshots go on the ticket,
@@ -145,4 +145,4 @@ When a bug lives in production data, the agent needs that data without touching 
 - Chrome DevTools MCP for the browser. No Playwright needed for proof.
 - The clone and reaper scripts live with the app repo that defines the stack. The console calls them by path.
 - The console VM's key for the provider CLI has to be account-wide (VM-scoped keys can't call the provider's
-  CLI). That's a known weak point: see [Security and billing](10-security-and-billing.md).
+  CLI). That's a known weak point: see [Security and billing](11-security-and-billing.md).

@@ -24,25 +24,23 @@ merges or hands it to a person. Auto-merge is opt-in per repo, and everything es
 
 ![The pipeline: inputs, intake, split, builder, gate, parallel reviews, approver, auto-merge or To Review](docs/img/pipeline.png)
 
-[Doc 13](docs/13-pipeline.md) walks through each stage.
-
 ## Read in this order
 
 | # | Doc | What it answers |
 |---|---|---|
 | 1 | [Why build your own](docs/01-why.md) | The philosophy: codify your process, own the robot, let code do the books |
 | 2 | [Architecture](docs/02-architecture.md) | The pieces, the interfaces between them, a ticket's path end to end |
-| 3 | [Board and routing](docs/03-board-and-routing.md) | Columns, outcomes, how the console writes to the tracker |
-| 4 | [Jobs](docs/04-jobs.md) | The job record, state machine, concurrency cap, restart recovery, parking |
-| 5 | [Sandboxes](docs/05-sandboxes.md) | A fresh VM per job: template, clone, delete safety, running the agent remotely, secrets |
-| 6 | [Agent tools, prompts and experts](docs/06-agent-tools-and-prompts.md) | The console's tool contract, how prompts compose, "experts before people" |
-| 7 | [Epics and umbrellas](docs/07-epics-and-umbrellas.md) | Big features as ordered children on a feature branch; parents that sort their sub-issues |
-| 8 | [The human side](docs/08-humans.md) | The UI, steering, writing for a tired person, more than one person |
-| 9 | [Scheduled work](docs/09-scheduled-work.md) | Sweeper, error-tracker sweep, auto review, resolutions, policy watch, backups |
-| 10 | [Security and billing](docs/10-security-and-billing.md) | Threat model, guardrails, subscription billing and the fallback |
-| 11 | [Build order](docs/11-build-order.md) | Phases, go/no-go checks, and what I'd do differently |
-| 12 | [Self-improvement](docs/12-self-improvement.md) | Grading every run, an improver that proposes prompt edits, and scores charted against prompt versions |
-| 13 | [The pipeline](docs/13-pipeline.md) | One job per ticket: intake, builder, gate, parallel reviewers, approver |
+| 3 | [The pipeline](docs/03-pipeline.md) | One job per ticket: intake, builder, gate, parallel reviewers, approver |
+| 4 | [Board and routing](docs/04-board-and-routing.md) | Columns, outcomes, how the console writes to the tracker |
+| 5 | [Jobs](docs/05-jobs.md) | The job record, state machine, concurrency cap, restart recovery, parking |
+| 6 | [Sandboxes](docs/06-sandboxes.md) | A fresh VM per job: template, clone, delete safety, running the agent remotely, secrets |
+| 7 | [Agent tools, prompts and experts](docs/07-agent-tools-and-prompts.md) | The console's tool contract, how prompts compose, "experts before people" |
+| 8 | [Epics and umbrellas](docs/08-epics-and-umbrellas.md) | Big features as ordered children on a feature branch; parents that sort their sub-issues |
+| 9 | [The human side](docs/09-humans.md) | The UI, steering, writing for a tired person, more than one person |
+| 10 | [Scheduled work](docs/10-scheduled-work.md) | Sweeper, error-tracker sweep, auto review, resolutions, policy watch, backups |
+| 11 | [Security and billing](docs/11-security-and-billing.md) | Threat model, guardrails, subscription billing and the fallback |
+| 12 | [Build order](docs/12-build-order.md) | Phases, go/no-go checks, and what I'd do differently |
+| 13 | [Self-improvement](docs/13-self-improvement.md) | Grading every run, an improver that proposes prompt edits, and scores charted against prompt versions |
 
 Then: [`prompts/`](prompts/) holds the agent prompts as templates, and
 [`BUILD-WITH-YOUR-AGENT.md`](BUILD-WITH-YOUR-AGENT.md) is a prompt you can hand to your own coding agent to start
@@ -83,7 +81,7 @@ The docs use these provider-neutral words. "What I used" notes say what filled e
 ## A note on billing
 
 My console drives the agent CLI on a Claude **subscription** rather than an API key. Read
-[Security and billing](docs/10-security-and-billing.md) before copying that. Provider terms change, and you need to
+[Security and billing](docs/11-security-and-billing.md) before copying that. Provider terms change, and you need to
 check the current ones yourself. The design includes a weekly policy watch and a one-switch fallback for that reason.
 
 ## Credits

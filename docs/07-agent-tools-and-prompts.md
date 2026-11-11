@@ -1,4 +1,4 @@
-# 6. Agent tools, prompts and experts
+# 7. Agent tools, prompts and experts
 
 The agent's world is three things: the **prompt** for its job kind, the **tools** the console gives it, and the
 **experts** it can ask. Together they encode the process.
@@ -27,7 +27,7 @@ permission flow.
 | Tool | Who gets it | Does |
 |---|---|---|
 | `report_outcome` | every job | The result. The console applies it after the turn ends; `to_review` submits the PRs to the gate |
-| `report_review` | reviewer subagents in a build or review job | One lens's verdict and findings. Refused outside the review stage. See [The pipeline](13-pipeline.md#contract) |
+| `report_review` | reviewer subagents in a build or review job | One lens's verdict and findings. Refused outside the review stage. See [The pipeline](03-pipeline.md#contract) |
 | `report_wip` | every sandboxed job | When asked to park: the branches it pushed, which the console verifies |
 | `attach_screenshots` | every job | Upload proof to the ticket now (follow-up chats); at the end use `report_outcome.screenshots` |
 | `tracker_issue` | every job | Read another ticket: description, comments, children, links |
@@ -40,11 +40,11 @@ permission flow.
 | `epic_status` | build, within one epic | Every sub-issue's order, state, newest job, outcome and PRs. Read-only |
 | `chat_search`, `chat_thread` | every job | Read team chat for context. Never DMs, always logged |
 | `errors_list`, `error_issue` | every job | Read the error tracker (stack, breadcrumbs, tags) |
-| `error_resolve`, `file_error_ticket` | error sweep only | See [Scheduled work](09-scheduled-work.md) |
+| `error_resolve`, `file_error_ticket` | error sweep only | See [Scheduled work](10-scheduled-work.md) |
 | `start_app` | build | Bring the stack up on demand on the job's own sandbox |
 | `load_snapshot`, `fetch_prod_documents` | build | Scrubbed prod data, capped. **Needs a person's approval** |
 | `prod_query` | build | One read-only SQL query against production. **Needs a person's approval** |
-| `propose_prompt_edit` | improver only | Save a *proposed* prompt version citing the failing jobs. Never live until a person approves. See [Self-improvement](12-self-improvement.md) |
+| `propose_prompt_edit` | improver only | Save a *proposed* prompt version citing the failing jobs. Never live until a person approves. See [Self-improvement](13-self-improvement.md) |
 
 ### `report_outcome`
 
@@ -69,7 +69,7 @@ Rules the console enforces:
   doesn't match the listed sub-issues one-to-one gets rejected.
 - Apply the outcome **after the turn that reported it ends**, so the agent's closing sentence lands in the transcript.
 - `to_review` needs `pr_urls` and `risk`. It moves the job to the gate and the run stays up (see
-  [The pipeline](13-pipeline.md)).
+  [The pipeline](03-pipeline.md)).
 - `attempt_failed` increments `attempts`. Below 3, the console tells the agent to start a fresh attempt. At 3
   it applies `needs_human`.
 - The comment the console posts is: tldr, then the ask (if any) in bold, then `<details>` with the summary, then
