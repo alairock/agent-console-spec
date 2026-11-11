@@ -12,14 +12,15 @@ flowchart TB
   C[common.md<br/>hard rules, CI, tracker/chat reading,<br/>experts, self-check, writing rules, how to finish]
   K{Job kind}
   C --> P[System prompt]
-  K -->|build| B[build.md]
-  K -->|build on a parent| U[umbrella.md<br/>in place of build.md]
+  K -->|build: intake| IN[intake.md]
+  K -->|build: after intake's handoff| B[builder.md]
+  K -->|build on a parent| U[umbrella.md<br/>in place of intake.md]
   K -->|review| R[review.md]
   K -->|test| TE[test.md]
   K -->|error sweep| E[error-sweep.md]
   K -->|grader| GR["grader.md<br/>+ graders/*.md for the kind"]
   K -->|improver| IM[improver.md]
-  B & U & R & TE & E & GR & IM --> P
+  IN & B & U & R & TE & E & GR & IM --> P
   A{Add-ons} -->|ticket is an epic child| EC[epic-child.md]
   A -->|build job is an epic's final check| EF[epic-final.md]
   EC & EF --> P
@@ -27,7 +28,7 @@ flowchart TB
   X[experts/*.md + experts/common.md] -->|registered as subagents| J
   RV[reviewers/*.md + reviewers/common.md] -->|registered as subagents| J
   F[First message:<br/>ticket, comments, links, sub-issues] --> J
-  M[messages/*.md<br/>gate-red, review-start, review-changes] -->|sent by the console mid-job| J
+  M[messages/*.md<br/>intake-brief, gate-red, review-start, review-changes] -->|sent by the console mid-job| J
 ```
 
 Order: `common.md`, then the kind's file, then any add-ons, then one generated line listing the repos the
@@ -36,8 +37,13 @@ comments marked "(an agent, not a person)"), parent and sub-issues, and for an u
 
 The experts and reviewers are not part of the system prompt. Each `experts/<name>.md` (its own section followed by
 `experts/common.md`) and each `reviewers/<lens>.md` (followed by `reviewers/common.md`) is registered with the agent
-runtime as a named subagent, and the job calls it through its normal subagent tool. A build job starts reviewers only
+runtime as a named subagent, and the job calls it through its normal subagent tool. A builder starts reviewers only
 when the console's `review-start` message names them; a review job picks them itself.
+
+A build job is two agents in turn, each its own top-level session on the same sandbox: `intake.md`, then, once
+intake reports `build`, `builder.md` in a fresh session whose first message is the ticket plus intake's brief
+(`messages/intake-brief.md`). They are sessions rather than subagents of one orchestrator because a subagent can't
+start subagents of its own: both need the experts, and the builder needs the reviewers.
 
 ## The pipeline's other prompts
 
@@ -46,7 +52,7 @@ A build job runs the [pipeline](../docs/03-pipeline.md). Three more kinds of fil
 | File | Who reads it | What it is |
 |---|---|---|
 | [`reviewers/`](reviewers/) | reviewer subagents | One lens each: `code` (every PR), `security`, `data`, `product`, `domain`. Each ends by calling `report_review`. `domain.md` is a template, like the domain expert |
-| [`messages/`](messages/) | the build agent | What the console sends mid-job: `gate-red` (CI failed, with log tails), `review-start` (CI green, start these reviewers), `review-changes` (the findings to fix). `{{slot}}`s are filled by the console |
+| [`messages/`](messages/) | the builder | What the console sends: `intake-brief` (the builder's start), `gate-red` (CI failed, with log tails), `review-start` (CI green, start these reviewers), `review-changes` (the findings to fix). `{{slot}}`s are filled by the console |
 | [`approver.md`](approver.md) | a one-shot model call, not an agent | The approver's prompt. The console fills in the ticket, risk, policy result, reviews, CI and diff, and reads back `{decision, reason}`. It runs only after the policy in code has passed |
 
 ## Frontmatter

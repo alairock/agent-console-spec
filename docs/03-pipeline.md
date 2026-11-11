@@ -1,7 +1,8 @@
 # 3. The pipeline
 
 A ticket runs as **one build job** on its own sandbox. The job moves through stages: intake, builder, gate, reviews
-and approver. Work that fails a stage goes back to the same builder, which still has its context. Work that needs a
+and approver. Intake and the builder are two agents, one after the other on the same sandbox. Work that fails a stage
+goes back to the same builder, which still has its context. Work that needs a
 person lands in To Review or Needs Human with one clear ask.
 
 ![The pipeline: inputs, intake, split, builder, gate, parallel reviews, approver, auto-merge or To Review](img/pipeline.png)
@@ -15,8 +16,10 @@ The gate, the parallel reviewers and the approver come from the software factory
 
 ## Why
 
-- **One agent keeps the context.** The builder that wrote the change fixes red CI and review findings itself. Nobody
-  hands off what one agent already knows.
+- **Deciding and building are separate agents.** Intake investigates and decides; it can't edit code. The builder
+  starts fresh from intake's brief, without intake's dead ends in its context.
+- **One builder keeps the context.** The builder that wrote the change fixes red CI and review findings itself.
+  Nobody hands off what it already knows.
 - **Code decides what passed.** The console reads CI on the PR's latest commit. A script can't skip a check or
   misread it.
 - **Problems come back early.** Reviewers run after every green gate, while the builder still has the context.
@@ -27,8 +30,8 @@ The gate, the parallel reviewers and the approver come from the software factory
 
 | Stage | Who decides | Does | Leaves to |
 |---|---|---|---|
-| **Intake** | the agent | Is it worth doing? What's the scope? Rates risk low / medium / high and picks the reviewers. Asks experts before people | builder, a split, or Needs Human |
-| **Builder** | the agent | Writes the spec into the PR, a failing test first, then the fix. Starts the app and drives a browser when the change needs it | gate (`report_outcome to_review`) |
+| **Intake** | the intake agent | Is it worth doing? What's the scope? Rates risk low / medium / high and picks the reviewers. Asks experts before people. Reads only | builder (`report_outcome build` with a brief), a split, or Needs Human |
+| **Builder** | the builder agent, a fresh session | Writes the spec into the PR, a failing test first, then the fix. Starts the app and drives a browser when the change needs it | gate (`report_outcome to_review`) |
 | **Gate** | the console | Reads CI on each PR's latest commit | reviews (green) or back to the builder (red) |
 | **Reviews** | reviewer subagents | One lens each, in parallel; each reports its own verdict | approver (all pass) or back to the builder |
 | **Approver** | the console's policy, then a model | Merge or escalate | Done (merged) or To Review |
@@ -46,7 +49,8 @@ code end to end, and the data when the bug lives in data. Then it applies the **
 2. **Not worth doing, or a duplicate:** report `needs_human` and say why.
 3. **A parent with open sub-issues:** sort them (see [Splitting](#splitting)).
 4. **Too big for one PR:** report `plan_review` with one sub-issue per PR.
-5. **Otherwise:** rate the risk, pick the reviewers, and build.
+5. **Otherwise:** rate the risk, pick the reviewers, and report `build` with a brief: what to change and why, where,
+   the acceptance checks, and what the experts decided ([`prompts/intake.md`](../prompts/intake.md)).
 
 Risky work (production data, auth and permissions, billing, paid model runs) raises the risk rating, adds the
 matching reviewers, and keeps the change away from auto-merge. A change that needs a decision only a person can make
@@ -54,7 +58,13 @@ still goes to Needs Human first.
 
 ## Builder
 
-The same agent goes on to build ([`prompts/build.md`](../prompts/build.md)):
+On `build`, the console posts the brief on the ticket, moves the stage to `build`, ends intake's session and starts
+the builder as a new session on the same sandbox ([`prompts/builder.md`](../prompts/builder.md)). Its first message is
+the ticket plus the brief. Intake and the builder are sessions, not subagents of one orchestrator, because a subagent
+can't start subagents of its own: both need the experts, and the builder needs the reviewers.
+
+- It can raise intake's risk and add reviewers. It can't lower or drop them: the console keeps the higher risk and
+  every reviewer either picked.
 
 - It writes a short spec at the top of the PR: the problem, the approach, and how it proves the fix.
 - It writes a failing test first, then the fix.
@@ -196,12 +206,18 @@ report_review({
 - The console sets `verdict = changes` exactly when a finding is `blocker` or `should_fix`, whatever the reviewer
   wrote.
 
-The job record carries `stage` (`intake` | `build` | `gate` | `review` | `approve`), `rounds` (`{gate, review}`) and
+The job record carries `stage` (`intake` | `build` | `gate` | `review` | `approve`), `intake` (intake's brief, risk
+and reviewers), `rounds` (`{gate, review}`) and
 `gate` (the PRs and their commits, the lenses, the reviews, and the deploy watch). See [Jobs](05-jobs.md).
 
 ## Acceptance checks
 
-- A build job that reports `to_review` moves to stage `gate` and stays running.
+- Intake can't edit files. It can report `build`, `plan_review` or `needs_human`; anything else is refused back to it.
+- Intake's `build` posts the brief, moves the stage to `build`, and starts a new builder session on the same sandbox:
+  no new sandbox, no second "job started" comment, and the ticket stays In Progress.
+- The builder can report `to_review`, `needs_human` or `attempt_failed`. Its risk never ends up below intake's, and
+  its reviewers always include intake's.
+- A builder that reports `to_review` moves to stage `gate` and stays running.
 - Red CI on the latest commit hands the builder the failing log. A new push re-arms the gate. Five reds end in
   Needs Human.
 - Green CI starts reviews with the code lens plus intake's picks. A lens that never reports gets one nudge, then

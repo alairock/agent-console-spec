@@ -50,13 +50,13 @@ permission flow.
 
 ```ts
 report_outcome({
-  outcome: 'to_review' | 'plan_review' | 'needs_human' | 'attempt_failed' | 'umbrella',
+  outcome: 'build' | 'to_review' | 'plan_review' | 'needs_human' | 'attempt_failed' | 'umbrella',
   tldr: string,          // ≤300 chars, 1–2 plain sentences: the result and what it means. No paths, IDs, flags.
   ask?: string,          // ≤300 chars, only if a person is needed: ONE yes/no question + your recommendation + cost/risk
   summary: string,       // markdown details, folded under "Details" in the comment
   pr_urls?: string[],                                  // to_review: the PRs the gate checks
-  risk?: 'low' | 'medium' | 'high',                    // to_review: intake's rating; the approver's policy reads it
-  reviewers?: ('security'|'data'|'product'|'domain')[], // to_review: lenses on top of code review
+  risk?: 'low' | 'medium' | 'high',                    // build, to_review: the approver's policy reads it; never below intake's
+  reviewers?: ('security'|'data'|'product'|'domain')[], // build, to_review: lenses on top of code review
   screenshots?: string[],                              // ≤8 absolute paths in the sandbox, uploaded to the ticket
   sub_issues?: { title, description }[],               // plan_review: one per PR
   children?: { id, route: 'agent'|'agent_draft'|'human', reason }[],  // umbrella: exactly one per listed sub-issue
@@ -68,6 +68,9 @@ Rules the console enforces:
 - Validate against the job kind and reject back to the agent with the reason. For example, an umbrella `children` list that
   doesn't match the listed sub-issues one-to-one gets rejected.
 - Apply the outcome **after the turn that reported it ends**, so the agent's closing sentence lands in the transcript.
+- Intake reports `build`, `plan_review` or `needs_human`; the builder `to_review`, `needs_human` or
+  `attempt_failed`. Anything else is refused back to the agent.
+- `build` hands the ticket to the builder: the summary is its brief (see [The pipeline](03-pipeline.md#builder)).
 - `to_review` needs `pr_urls` and `risk`. It moves the job to the gate and the run stays up (see
   [The pipeline](03-pipeline.md)).
 - `attempt_failed` increments `attempts`. Below 3, the console tells the agent to start a fresh attempt. At 3
@@ -135,7 +138,7 @@ flowchart LR
   repeating them.
 
 The templates are in [`prompts/`](../prompts/): start with [`common.md`](../prompts/common.md) and
-[`build.md`](../prompts/build.md).
+[`intake.md`](../prompts/intake.md) and [`builder.md`](../prompts/builder.md).
 
 ## Experts before people
 
