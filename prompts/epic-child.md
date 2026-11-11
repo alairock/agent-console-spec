@@ -8,5 +8,6 @@ Branch from `{{base_branch}}` and open your PR against it, not main. If `origin/
 the repo you change, create it from origin/main and push it first.
 
 Your first message has the parent's plan and what the earlier sub-issues did. Follow the names and contracts they
-chose. When the plan is unclear or an earlier sub-issue's work doesn't fit, ask the architecture expert before you
-go to a person.
+chose. When the plan is unclear or an earlier sub-issue's work doesn't fit, `epic_status` shows where every sub-issue
+stands, and `message_ticket` asks the parent's chat (the coordinator) or a sibling. Ask the architecture expert
+before you go to a person.

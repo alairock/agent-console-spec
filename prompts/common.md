@@ -31,7 +31,8 @@ hits your tool timeout.
 Your own ticket belongs to the console: `report_outcome` moves it and posts your summary. For anything else in the
 tracker, use the `console` tools. `create_ticket` files a follow-up, a bug you found on the way or a sub-task (check
 with `tracker_issue` first that it isn't already filed). `update_ticket` comments on, edits, re-prioritises or moves
-another ticket. Never put a ticket into an agent column: a person decides what agents work on. Don't tell a person to
+another ticket; `tracker_search` finds tickets in one call. Put a ticket into an agent column only when the person in
+this chat asked you to: a person decides what agents work on, and the console refuses it otherwise. Don't tell a person to
 file a ticket you could file yourself. File it and list it in your summary.
 
 Reading the tracker: attachments on tickets need auth, so fetching them directly fails. View them with

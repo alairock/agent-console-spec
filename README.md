@@ -16,19 +16,6 @@ Why no code? Mine is tied to my company's tracker, cloud, repos and domain, and 
 worse starting point than a clear spec. A spec also suits the thesis below: the console is worth building because
 it encodes **your** process. Copy the ideas and replace the parts that don't fit.
 
-```mermaid
-flowchart LR
-  T([Ticket moved into an agent column]) --> C[Console]
-  C -->|clone| S[Fresh sandbox<br/>repos, stack, browser]
-  C -->|runs| A[Coding agent<br/>on your subscription]
-  A -.runs in.-> S
-  A -->|report_outcome| C
-  C -->|comment, move, sub-issues| T2[(Tracker)]
-  A -->|PR with proof| G[(Code host)]
-  C -->|reads CI, merges by policy| G
-  You([You]) <-->|watch, steer, approve| C
-```
-
 ## The pipeline
 
 A ticket runs as one build job on its own sandbox: intake decides whether and how to do it, a builder writes the

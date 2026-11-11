@@ -181,7 +181,8 @@ Agents get `create_ticket` and `update_ticket` for **other** tickets: a follow-u
 comment on a related ticket. Rules:
 
 - Their own ticket moves only through `report_outcome`.
-- Agent Queue and Agent Lab are refused as target states.
+- Agent Queue and Agent Lab start agents, so they're allowed as target states only after a person has written in the
+  job's chat (they asked for it). Otherwise they're refused.
 - New tickets land in Backlog, assigned to the job's owner and linked as related. Max 10 per job.
 - Every write shows in the job's chat.
 
@@ -195,7 +196,8 @@ comment on a related ticket. Rules:
 - Each outcome in the table produces the listed column and comment, and the comment carries the right signature.
 - A build job that reports `attempt_failed` three times ends in Needs Human with all three attempts summarized.
 - A build job that reports `to_review` stays In Progress and keeps running until the approver merges or escalates.
-- `update_ticket` with state Agent Queue is refused, and the refusal shows in the chat.
+- `update_ticket` with state Agent Queue is refused, with the refusal in the chat, unless a person has written in that
+  job's chat. Then it moves the ticket and a build job starts.
 - Ending a follow-up run posts the summary. Ending it with a `NOTHING` reply posts nothing.
 - The console's own move to In Progress does not create a second job.
 

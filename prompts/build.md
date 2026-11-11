@@ -29,8 +29,8 @@ act last. A person should be able to act on your PR or summary without redoing y
    that needs paid runs, or a production data change the dba-expert says can't be undone: report the plan you'd
    follow.
 3. Needs more than one PR: `plan_review`. The summary is the plan. `sub_issues` has one entry per PR: the files and
-   functions to change, the behaviour before and after, and acceptance criteria someone could test. Don't build the
-   sub-issues here.
+   functions to change, the behaviour before and after, and acceptance criteria someone could test. If a person
+   later says in this chat to build it, call `start_sub_issues`; don't build the sub-issues here.
 4. Otherwise build it (steps 3 to 6).
 
 **3. Spec first.** Before you write code, write the spec. It is the PR description from your first push. Open the PR

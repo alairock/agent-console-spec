@@ -32,8 +32,12 @@ permission flow.
 | `attach_screenshots` | every job | Upload proof to the ticket now (follow-up chats); at the end use `report_outcome.screenshots` |
 | `tracker_issue` | every job | Read another ticket: description, comments, children, links |
 | `tracker_file` | every job | Read an attachment that needs tracker auth |
+| `tracker_search` | every job | Find tickets in one call: text, state, label, assignee, project, updated since. Read-only |
 | `create_ticket` | most jobs | File a follow-up or found bug. Lands in Backlog, assigned to the owner, linked as related, max 10 per job |
-| `update_ticket` | most jobs | Comment on, edit or move *another* ticket. Agent columns are refused |
+| `update_ticket` | most jobs | Comment on, edit or move *another* ticket. Agent columns only after a person wrote in the chat |
+| `start_sub_issues` | build | A person in the chat asks to build a ticket that has sub-issues: start them as an epic (the same as approving its plan). Refused until a person has written in the chat; the chat then becomes the epic's coordinator |
+| `message_ticket` | build, within one epic | Message the parent's or a sibling's chat. A finished chat resumes for one turn to answer. Capped per job; shows in both chats |
+| `epic_status` | build, within one epic | Every sub-issue's order, state, newest job, outcome and PRs. Read-only |
 | `chat_search`, `chat_thread` | every job | Read team chat for context. Never DMs, always logged |
 | `errors_list`, `error_issue` | every job | Read the error tracker (stack, breadcrumbs, tags) |
 | `error_resolve`, `file_error_ticket` | error sweep only | See [Scheduled work](09-scheduled-work.md) |
@@ -186,7 +190,9 @@ them.
 - An approved, an edited-then-approved, and a denied prod call each leave one `prod_access` row with both inputs.
 - An agent that tries to comment on its own ticket through `update_ticket` is refused with a message pointing to
   `report_outcome`.
-- `create_ticket` / `update_ticket` refuse agent columns.
+- `create_ticket` / `update_ticket` refuse agent columns unless a person has written in the job's chat.
+- `start_sub_issues` is refused until a person has written in the chat. `message_ticket` reaches only the same epic's
+  parent and siblings.
 - A malformed `report_outcome` comes back to the agent as a tool error, and nothing is written to the tracker.
 - A build job's intake on a vague ticket shows at least one expert consultation and a **Decided by experts** list, and
   its `ask` (if any) is a single yes/no question.
