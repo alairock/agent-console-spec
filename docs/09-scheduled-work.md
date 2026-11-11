@@ -27,6 +27,8 @@ flowchart LR
   REG --> ES[Error sweep · daily per project]
   REG --> SN[Prod snapshot · scheduled]
   REG --> PW[Policy watch · weekly]
+  REG --> GR[Grader · on job end]
+  REG --> IM[Improver · daily]
   OS[OS timers, read-only in UI] --> RP[Sandbox reaper · hourly]
   OS --> BK[Console backup · nightly]
 ```
@@ -105,6 +107,11 @@ These are OS timers on the console host. The UI shows them read-only, since chan
   the safety net for crashes; the console normally deletes its own.
 - **Backup (nightly):** the console DB (using SQLite's online backup), its env file and the saved sessions go to
   object storage, using keyless workload identity rather than a stored key.
+
+## Grading and the improver
+
+Every ended job is measured and graded, and once a day an improver agent reads the failures and proposes prompt
+edits for a person to approve. That loop has its own doc: [Self-improvement](12-self-improvement.md).
 
 ## Acceptance checks
 

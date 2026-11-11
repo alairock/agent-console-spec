@@ -15,6 +15,7 @@ flowchart LR
   P5 --> P6["6. Context for agents:<br/>chat, errors, prod snapshots, experts"]
   P6 --> P7["7. More than one person"]
   P7 --> P8["8. Fold in other automations:<br/>reviews, error sweep, schedules"]
+  P8 --> P9["9. Self-improvement<br/>+ production access log"]
 ```
 
 ### 0. Write the contract first
@@ -84,6 +85,13 @@ Owners, per-person subscriptions and connections, the setup gate. See [The human
 
 Anything you were doing with separate scheduled agents (PR review assignment, error triage) becomes a job kind
 with the same sandbox, tools and outcomes. Add the Schedules page so it all stays visible.
+
+### 9. Self-improvement and production access
+
+Once jobs run every day, grade them. Stamp each job with its prompt versions first, then add counted facts, then
+three rubrics, then the daily improver and the Self-improvement page. See [Self-improvement](12-self-improvement.md).
+In the same phase, put every production tool behind a person's approval and one access log
+([Production tools need a person](06-agent-tools-and-prompts.md#production-tools-need-a-person)).
 
 ## Using agents to build it
 

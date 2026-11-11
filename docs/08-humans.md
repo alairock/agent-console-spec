@@ -33,6 +33,8 @@ flowchart LR
 | **Jobs list** | One row per run, labelled by what it *did* ("opened PR", "asked a question"), not by the column it set. |
 | **Usage** | Tokens per job, subscription limit windows per account, sandbox cost, per person. The billing proof (`apiKeySource`) per job. |
 | **Schedules** | Every recurring job with cadence, last result and next run. Pause, resume and run now. |
+| **Production access** | Every production read an agent asked for: the query or ids, the reason, who approved or denied it, the result. See [Production tools need a person](06-agent-tools-and-prompts.md#production-tools-need-a-person). |
+| **Self-improvement** | Scores per job kind over time with a marker at each prompt version, the proposals inbox, grader runs and failure themes. See [Self-improvement](12-self-improvement.md). |
 | **Settings** | Each person connects their own accounts. See [More than one person](#more-than-one-person). |
 
 ## The job chat
@@ -47,7 +49,7 @@ Contract for what a person can do to a job:
 |---|---|---|
 | **Send** a message | running, waiting_input, and terminal or parked jobs with a session | Mid-run: delivered into the stream. Idle: starts the next turn. Ended: resumes the session (parked: on a fresh sandbox) |
 | **Stop** | running | Interrupts the current turn; the job goes to waiting_input. "Continue" is just the next message |
-| **Approve / Deny** | a pending permission request | Answers the runtime's permission callback |
+| **Approve / Deny** | a pending permission request | Answers the runtime's permission callback and records who answered. A production tool shows a red badge, can be edited before approving, and is never "always allow" |
 | **Answer** | a pending question from the agent | A form built from the question's options |
 | **End** | any live job | If the job already reported an outcome (a follow-up run), the agent is first asked for a short "what changed since the outcome" note, which is posted to the ticket unless it replies `NOTHING`. Ending a job with no outcome sends the ticket to Needs Human |
 

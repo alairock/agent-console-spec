@@ -18,7 +18,9 @@ flowchart TB
   K -->|test| TE[test.md]
   K -->|umbrella sort| U[umbrella.md]
   K -->|error sweep| E[error-sweep.md]
-  T & L & R & TE & U & E --> P
+  K -->|grader| GR["grader.md<br/>+ graders/*.md for the kind"]
+  K -->|improver| IM[improver.md]
+  T & L & R & TE & U & E & GR & IM --> P
   A{Add-ons} -->|ticket is an epic child| EC[epic-child.md]
   A -->|lab job is an epic's final check| EF[epic-final.md]
   EC & EF --> P
@@ -62,6 +64,7 @@ Fill these in from your config when the prompt is built, or replace them once by
 | `{{quick_checks}}` | Your fast per-repo checks (fmt, vet, lint, typecheck) |
 | `{{targeted_test}}` | How to run a single named test |
 | `{{risky}}` | What your team counts as risky: prod data migrations, auth, billing, paid model runs… |
+| `{{min_failures}}` | Improver: how many failures a theme needs before it's worth a prompt edit, e.g. 3 |
 
 ## The tools these prompts mention
 
@@ -70,4 +73,12 @@ All are served by the console itself as an MCP server named `console`. See
 
 `report_outcome`, `report_wip`, `attach_screenshots`, `tracker_issue`, `tracker_file`, `create_ticket`,
 `update_ticket`, `chat_search`, `chat_thread`, `errors_list`, `error_issue`, `error_resolve`, `file_error_ticket`,
-`start_app`, `load_snapshot`, `fetch_prod_documents`.
+`start_app`, `load_snapshot`, `fetch_prod_documents`, `prod_query`, `propose_prompt_edit`.
+
+`load_snapshot`, `fetch_prod_documents` and `prod_query` reach production, so each call waits for a person's approval.
+
+## Graders
+
+`grader.md` is the frame and output format. Each file in `graders/` is one rubric with a `kinds` list in its
+frontmatter, and the console gives the grader the rubrics for the finished job's kind. Rubrics are versioned like
+prompts, because editing one changes the scores. See [docs/12](../docs/12-self-improvement.md).

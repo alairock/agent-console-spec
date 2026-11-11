@@ -19,8 +19,9 @@ The agent's world is three things: the **prompt** for its job kind, the **tools*
 
 ## Tool contract
 
-All tools live on one in-process MCP server (call it `console`). They are auto-approved. Everything else the
-agent does goes through the normal permission flow.
+All tools live on one in-process MCP server (call it `console`). They are auto-approved, except the tools that
+reach production, which always wait for a person (below). Everything else the agent does goes through the normal
+permission flow.
 
 | Tool | Who gets it | Does |
 |---|---|---|
@@ -35,7 +36,9 @@ agent does goes through the normal permission flow.
 | `errors_list`, `error_issue` | every job | Read the error tracker (stack, breadcrumbs, tags) |
 | `error_resolve`, `file_error_ticket` | error sweep only | See [Scheduled work](09-scheduled-work.md) |
 | `start_app` | triage | Bring the stack up on demand when triage must see the UI |
-| `load_snapshot`, `fetch_prod_documents` | triage, lab | Scrubbed prod data, capped and audited |
+| `load_snapshot`, `fetch_prod_documents` | triage, lab | Scrubbed prod data, capped. **Needs a person's approval** |
+| `prod_query` | triage, lab | One read-only SQL query against production. **Needs a person's approval** |
+| `propose_prompt_edit` | improver only | Save a *proposed* prompt version citing the failing jobs. Never live until a person approves. See [Self-improvement](12-self-improvement.md) |
 
 ### `report_outcome`
 
@@ -61,6 +64,37 @@ Rules the console enforces:
   it applies `needs_human`.
 - The comment the console posts is: tldr, then the ask (if any) in bold, then `<details>` with the summary, then
   PR links and screenshots, then the signature line.
+
+### Production tools need a person
+
+Each console tool is declared `prod: true` or not. The permission callback auto-allows the console's own tools
+**unless** they're `prod: true`. Those fall through to the same approval path as any other tool, so the job goes to
+`waiting_input` and the request shows in the chat.
+
+- **One approval per call.** No "always allow" for a prod tool, for a job or for a session.
+- **The card shows everything.** The tool, the full input (the SQL, the document ids), the agent's reason, and a red
+  Production badge. The person can edit the input before approving, for example to tighten a `WHERE`. The log
+  keeps both versions.
+- **The approver is recorded.** The approval endpoint takes the person's identity from the login proxy. A prod
+  approval with no identity (a local console with no proxy) is refused.
+- **Unanswered requests expire** after 2h, and the job parks as usual.
+- **One log for all of it.** An append-only `prod_access` table, never updated in place, holds a row per request:
+
+| Field | Notes |
+|---|---|
+| job, ticket, job kind, tool | where it came from |
+| `input_requested`, `input_approved` | what the agent asked for, and what actually ran |
+| `reason` | the agent's own words, required by the tool's schema |
+| `requested_at`, `decision`, `decided_by`, `decided_at` | `approved`, `denied`, `aborted` or `expired` |
+| `result` | row count, files copied, run link, error. **Never the rows themselves** |
+
+The Production access page lists it newest first, filtered by tool, job, approver and decision. Each row links to
+the job's chat at the moment of the request. The ticket also gets a one-line comment: *"Production query approved
+by …: reason"*.
+
+This works because of one fact you must keep true: **only console tools can reach production.** The sandboxes hold
+no production credentials, so there's no Bash command to catch. If you ever give a sandbox a prod identity, this
+gate means nothing.
 
 ## How prompts compose
 
@@ -132,6 +166,9 @@ them.
 
 ## Acceptance checks
 
+- A `prod: true` tool call waits for a person even though every other console tool is auto-allowed.
+- Approving it records the approver's identity. With no identity, the approval is refused.
+- An approved, an edited-then-approved, and a denied prod call each leave one `prod_access` row with both inputs.
 - An agent that tries to comment on its own ticket through `update_ticket` is refused with a message pointing to
   `report_outcome`.
 - `create_ticket` / `update_ticket` refuse agent columns.

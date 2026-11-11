@@ -34,6 +34,7 @@ job survives restarts and idle time.
 | `session_id` | text \| null | the agent session id, for resume |
 | `prompt` | text | the first human message (built from the ticket and its comments) |
 | `model` | text \| null | null = the runtime's default |
+| `prompt_versions` | json | `{file: version}` for every prompt file the job was built from, stamped at start. Lets scores line up with prompt edits ([Self-improvement](12-self-improvement.md)) |
 | `pid` | int \| null | local pid of the agent process (or its ssh wrapper) while it runs |
 | `hook_key` | text \| null | `<issue_id>:<to_state>`, for idempotency |
 | `base_branch` | text \| null | `feature/<parent>` for an epic child or epic final, else main |

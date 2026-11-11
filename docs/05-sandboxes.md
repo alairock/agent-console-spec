@@ -107,10 +107,16 @@ When a bug lives in production data, the agent needs that data without touching 
 |---|---|---|
 | `load_snapshot` | Loads the newest scrubbed prod snapshot into the sandbox's DB, then migrations and a fresh test login | a new snapshot at most every 6h across all jobs; reason required |
 | `fetch_prod_documents` | Copies specific files (by id from the snapshot DB) into a dev bucket so they open in the sandbox | 25 per call, 200 a day; each file copied once; reason required |
+| `prod_query` | Runs one read-only SQL query against production and returns the rows to the agent | read-only role, read-only transaction, 30s timeout, 500 rows; reason required |
 
 - Snapshots are made **inside** production by a scheduled job that scrubs and exports them, and stored in a dev bucket.
+  `prod_query` runs the same way: the console dispatches a job inside production with a read-only database role.
   The sandboxes never hold a production identity.
-- Every call is logged with its reason on a Snapshots page.
+- **Every one of these calls waits for a person.** They're the only console tools that aren't auto-approved. The
+  approval card shows the full query or ids and the agent's reason, under a red Production badge. See
+  [Production tools need a person](06-agent-tools-and-prompts.md#production-tools-need-a-person).
+- Every call lands in the **Production access log**: what was run, why, who approved it, and what came back. A
+  query's rows are never stored in the log, only its row count.
 - Prompts forbid browsing and forbid pasting personal data into PRs or tickets. Screenshots go on the ticket,
   never in the PR.
 
@@ -124,7 +130,9 @@ When a bug lives in production data, the agent needs that data without touching 
 - A VM tagged `keep` survives the reaper. The tag comes off and the VM is deleted when its job ends.
 - The token appears in no file on the VM, no process argv (`ps`), and not in the wrapper script.
 - `env` inside a job shows none of the console's secrets.
-- The agent can load a snapshot and fetch two documents. Both calls appear in the audit log with the reason.
+- The agent can load a snapshot and fetch two documents. Both wait for a person, and both appear in the Production
+  access log with the reason and the approver.
+- A `prod_query` containing a write fails at the database, not just in the console.
 
 ## What I used
 

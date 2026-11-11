@@ -43,6 +43,7 @@ flowchart LR
 | 9 | [Scheduled work](docs/09-scheduled-work.md) | Sweeper, error-tracker sweep, auto review, resolutions, policy watch, backups |
 | 10 | [Security and billing](docs/10-security-and-billing.md) | Threat model, guardrails, subscription billing and the fallback |
 | 11 | [Build order](docs/11-build-order.md) | Phases, go/no-go checks, and what I'd do differently |
+| 12 | [Self-improvement](docs/12-self-improvement.md) | Grading every run, an improver that proposes prompt edits, and scores charted against prompt versions |
 
 Then: [`prompts/`](prompts/) holds the agent prompts as templates, and
 [`BUILD-WITH-YOUR-AGENT.md`](BUILD-WITH-YOUR-AGENT.md) is a prompt you can hand to your own coding agent to start

@@ -10,7 +10,7 @@ You're going to build an "agent console" for my team. The design is in the agent
 <fill in>). It's a spec, not code. Your job is to build my version of it, shaped around my tools and my process.
 
 ## 1. Read, in this order
-README.md (glossary included), then docs/01 through docs/11, then prompts/README.md and every file in prompts/.
+README.md (glossary included), then docs/01 through docs/12, then prompts/README.md and every file in prompts/.
 Don't write any code while reading. When you're done, summarize back to me in 10 bullets: the principles you'll
 hold to, and the parts you think I might not need.
 
@@ -59,6 +59,8 @@ Rules while building
 - The console's code does all tracker writes for a job's own ticket. Agents report one structured outcome.
 - Every job runs in its own fresh sandbox. Agents never run on the console's host, next to its secrets.
 - No secret is written to a sandbox's disk or put on a command line.
+- Sandboxes hold no production credentials. Production is reached only through console tools, and each call
+  waits for a person and lands in the Production access log.
 - Keep it boring: one process, one SQLite file, one UI. No queue service, no microservices, no plugin system.
 - Adapt the prompts in prompts/ to my process and fill every placeholder. Write the domain expert by interviewing
   me (or the person who answers domain questions) using the template's questions.

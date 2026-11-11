@@ -8,7 +8,8 @@ privileged system whose blast radius you design on purpose.
 | Asset | Threat | Control |
 |---|---|---|
 | The console and its secrets | An agent (prompt-injected by a ticket, comment or web page) reaching them | Agents never run on the console host. Each job runs in its own sandbox. Job processes never inherit the console's secrets |
-| Production data | An agent writing to or deleting it | No prod write credentials anywhere an agent runs. Prod data reaches agents only as scrubbed snapshots plus capped, audited document copies |
+| Production data | An agent writing to or deleting it | No prod credentials anywhere an agent runs. Prod data reaches agents only through console tools (scrubbed snapshots, capped document copies, read-only queries), and every such call waits for a person |
+| Production reads | Nobody knowing what was read, or why | An append-only Production access log: what ran, the agent's reason, who approved it, what came back |
 | Main branch | An agent merging bad code | Agents can't merge to main. They open PRs, and people merge |
 | The UI | Anyone on the internet | A login proxy in front, plus an email allowlist. The UI port is never public |
 | Webhooks | Forged events starting jobs | One public port serving only signed hooks (HMAC over the raw body, 1 MiB cap). Everything else returns 404 |
@@ -46,6 +47,7 @@ flowchart LR
 |---|---|---|
 | merge to main | open a PR | Code host branch protection; no merge rights for the bot |
 | write production data | write the analysis and a draft migration for a person | No credentials; prompt |
+| read production without a person saying yes | ask through a prod tool, with a reason | Prod tools are never auto-approved; the approver is recorded |
 | run paid or expensive jobs (benchmarks, bulk model calls) | stop and ask | Prompt; disallowed tools where you can name them |
 | change auth, permissions or billing on their own | route to `needs_human` with a plan | Triage rules; expert escalation rules |
 | keep going after 3 failed fix attempts | stop and summarize what they tried | Console counts attempts |
