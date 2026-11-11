@@ -28,6 +28,29 @@ flowchart LR
   You([You]) <-->|watch, steer, approve| C
 ```
 
+## Where the pipeline is heading
+
+Version 2 is one job per ticket: intake, a builder, a gate the console checks, parallel reviewers that send work back
+to the same builder, and an approver that merges low-risk work on its own. It borrows the gate, reviewers and approver
+from the software factory [ZazenCodes](https://www.youtube.com/@ZazenCodes) builds, which helped me hone and guide my
+own process. [Doc 13](docs/13-pipeline-v2.md) compares it with today's version.
+
+```mermaid
+flowchart LR
+  IN[Inputs<br/>tickets, error sweep, schedules] --> INT[Intake<br/>worth it? scope? risk?]
+  INT -->|too big, or a parent| SP[Split<br/>starts sub-issues itself]
+  SP -->|each its own job| IN
+  INT -->|questions| NH{{Needs you}}
+  INT --> B[Builder<br/>spec in the PR, then build]
+  B --> G[Gate<br/>console checks CI]
+  G -.->|red: the failing log| B
+  G -->|green| R[Reviews<br/>parallel, picked by risk]
+  R -.->|changes| B
+  R --> AP[Approver]
+  AP -->|low risk| AM[Auto-merge]
+  AP -->|escalate| TRV{{To Review<br/>a person}}
+```
+
 ## Read in this order
 
 | # | Doc | What it answers |
@@ -44,6 +67,7 @@ flowchart LR
 | 10 | [Security and billing](docs/10-security-and-billing.md) | Threat model, guardrails, subscription billing and the fallback |
 | 11 | [Build order](docs/11-build-order.md) | Phases, go/no-go checks, and what I'd do differently |
 | 12 | [Self-improvement](docs/12-self-improvement.md) | Grading every run, an improver that proposes prompt edits, and scores charted against prompt versions |
+| 13 | [The pipeline, version 2](docs/13-pipeline-v2.md) | Today's pipeline beside a simpler one: one job per ticket, a gate, parallel reviewers, an approver that can merge |
 
 Then: [`prompts/`](prompts/) holds the agent prompts as templates, and
 [`BUILD-WITH-YOUR-AGENT.md`](BUILD-WITH-YOUR-AGENT.md) is a prompt you can hand to your own coding agent to start
@@ -82,6 +106,10 @@ The docs use these provider-neutral words. "What I used" notes say what filled e
 My console drives the agent CLI on a Claude **subscription** rather than an API key. Read
 [Security and billing](docs/10-security-and-billing.md) before copying that. Provider terms change, and you need to
 check the current ones yourself. The design includes a weekly policy watch and a one-switch fallback for that reason.
+
+## Credits
+
+Thanks to [ZazenCodes](https://www.youtube.com/@ZazenCodes), whose software factory videos helped me hone and guide my own process.
 
 ## License
 
