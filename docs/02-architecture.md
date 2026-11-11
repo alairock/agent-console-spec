@@ -38,7 +38,7 @@ flowchart TB
 |---|---|---|
 | **API** | Jobs, the chat stream (SSE), board and ticket views, settings, usage, schedules | Hold business rules that belong in the manager |
 | **Hooks listener** | Accept only signed webhooks on the one public port | Serve anything else |
-| **Job manager** | Queue, provision, run the agent, handle tools, apply outcomes, sequence epics, park, recover | Let an agent write to its own ticket |
+| **Job manager** | Queue, provision, run the agent, handle tools, apply outcomes, run the gate and the approver, sequence epics, park, recover | Let an agent write to its own ticket, or let a model widen the merge policy |
 | **People** | Each person's credentials and what they may do | Hand secrets to job processes |
 | **Scheduler** | Every recurring tick in one registry (see [Scheduled work](09-scheduled-work.md)) | Overlap a run that's already going |
 | **Sandboxes** | One per job, cloned from the template, deleted when the job ends | Be shared, or be long-lived |
@@ -91,6 +91,7 @@ sequenceDiagram
   participant R as Relay
   participant C as Console
   participant S as Sandbox
+  participant G as Code host
   You->>T: Move ticket to Agent Queue
   T->>R: Webhook
   R->>C: POST /hooks/tracker-event (HMAC)
@@ -100,8 +101,16 @@ sequenceDiagram
   C->>S: Start agent (prompt = ticket + comments + kind rules)
   S-->>C: Messages, tool calls, permission asks (streamed to UI)
   You-->>C: Steer, answer, approve in the chat
-  S->>C: report_outcome (outcome, tldr, ask, summary, PRs)
-  C->>T: Signed comment, sub-issues, move to the outcome's column
+  S->>G: Push, open PRs
+  S->>C: report_outcome to_review (PRs, risk, reviewers)
+  loop Gate and reviews
+    C->>G: Read CI on the latest commit
+    C->>S: Red: the failing log. Green: run the reviewers
+    S->>C: report_review, one per lens
+  end
+  C->>C: Approver: policy in code, then a model
+  C->>G: Merge if allowed, else comment the reasons
+  C->>T: Signed comment, move to Done or To Review
   C->>S: Tag job-ended, delete
 ```
 
@@ -113,7 +122,7 @@ The console stores as little as possible. Everything a person would look for els
 |---|---|---|
 | Tickets, comments, sub-issues, column | Tracker | It's the shared memory between people and agents |
 | Code, PRs, reviews, CI | Code host | Same |
-| Jobs, the full event log, outcomes, epic/umbrella bookkeeping, settings, schedule state | Console DB | Only the console needs it; it's the audit trail of every run |
+| Jobs, the full event log, outcomes, reviews, epic/umbrella bookkeeping, pipeline settings, schedule state | Console DB | Only the console needs it; it's the audit trail of every run |
 | Agent sessions for parked jobs | Console disk | So a parked job can resume on a new sandbox |
 | Per-person credentials | Credential proxy where possible, else console DB | See [Security](10-security-and-billing.md) |
 | Secrets for the console itself | One env file, mode 600 | Never inherited by jobs |
@@ -129,18 +138,20 @@ You don't have to follow this, but these boundaries kept the code easy to change
 |---|---|
 | `server` | Wiring from env: clients, manager, listeners, schedule registry |
 | `app` | HTTP routes and SSE |
-| `manager` | Job lifecycle, tool handlers, outcomes, epics, umbrellas, parking |
+| `manager` | Job lifecycle, tool handlers, outcomes, the pipeline's stages, epics, umbrellas, parking |
+| `approver` | The merge policy in code and picking review lenses from the changed paths |
 | `outcome` | The tool definitions the agent sees (one MCP server, in process) |
 | `transport` | Local and remote process start |
 | `sandboxes` | Clone, tag, delete, copy |
 | `tracker`, `codehost`, `chat`, `errors` | Thin API clients |
-| `sweeper`, `schedules` | The periodic tick and the registry around every recurring job |
+| `sweeper`, `schedules` | The periodic ticks (sweeper, gate) and the registry around every recurring job |
 | `prompts` | Loading and composing prompt files |
 | `people` | Who's who, their connections, the setup gate |
 
 ## Acceptance checks
 
 - A tracker move into an agent column produces exactly one job, even if the webhook is delivered twice.
+- With auto-merge off, no code path merges a PR, whatever the approver model answers.
 - A job's whole transcript can be replayed from the event log alone after a console restart.
 - Replacing the `Sandboxes` implementation with a local "run in a temp dir" stub runs the same job end to end.
 - No job process can read the console's env file or DB.

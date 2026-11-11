@@ -39,7 +39,7 @@ sequenceDiagram
   C->>C: queued → provisioning (slot free)
   C->>P: clone template as lab-job-<id>, tags: ephemeral, job-<id>
   P-->>C: VM ready (~30s)
-  C->>V: start stack (lab jobs only, triage skips it)
+  C->>V: start stack (Agent Lab and test jobs only)
   V-->>C: streamed as log events
   C->>V: start agent over ssh (transport), token on stdin
   V-->>C: stream-json messages
@@ -52,12 +52,14 @@ sequenceDiagram
   `[a-z0-9-]` becomes `-`), so the console and the script always agree on it.
 - Clone output streams into the job's chat as `log` events, so a provisioning failure is visible.
 
-### Triage without the stack
+### The stack on demand
 
-Triage sandboxes skip the app stack, which makes them fast. Most tickets don't need it. When triage can't decide
-without seeing the UI (a screenshot-only ticket, "this looks wrong"), it calls a `start_app` tool that brings the
-stack up in a few minutes. It looks, captures screenshots, and then routes. It doesn't fix UI bugs; those go to the
-Lab with a precise handoff note.
+A build job from Agent Queue skips the app stack, which makes it fast. Most tickets don't need it. When intake can't
+decide without seeing the UI (a screenshot-only ticket, "this looks wrong"), or the builder needs to reproduce and
+prove a visual fix, it calls a `start_app` tool that brings the stack up in a few minutes on the same sandbox. The
+job keeps its context: the agent that looked at the bug is the one that fixes it.
+
+A ticket in Agent Lab starts with the stack already up, for when you know it needs the running app.
 
 ### Delete safety
 
@@ -124,7 +126,7 @@ When a bug lives in production data, the agent needs that data without touching 
 
 - A clone boots to a ready stack (health endpoint 200, frontend responds) in the time you measured and wrote down.
 - Headless Chrome on a clone loads the app and logs in with the test user.
-- Two lab jobs run at once without seeing each other's data.
+- Two build jobs with the stack up run at once without seeing each other's data.
 - After a job ends, its VM is gone and the template and the console's VM are untouched.
 - Asking the delete function for a VM without the job's tag, or for the template by name, refuses.
 - A VM tagged `keep` survives the reaper. The tag comes off and the VM is deleted when its job ends.

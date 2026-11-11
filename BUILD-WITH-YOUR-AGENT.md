@@ -10,7 +10,7 @@ You're going to build an "agent console" for my team. The design is in the agent
 <fill in>). It's a spec, not code. Your job is to build my version of it, shaped around my tools and my process.
 
 ## 1. Read, in this order
-README.md (glossary included), then docs/01 through docs/12, then prompts/README.md and every file in prompts/.
+README.md (glossary included), then docs/01 through docs/13, then prompts/README.md and every file in prompts/.
 Don't write any code while reading. When you're done, summarize back to me in 10 bullets: the principles you'll
 hold to, and the parts you think I might not need.
 
@@ -23,6 +23,9 @@ Process
 - Which tickets do I want agents to take: bugs only, features, reviews, error-tracker issues?
 - What's risky for us (prod data, auth, billing, paid model runs, anything else)? Agents will stop and ask on these.
 - Who reviews and merges? Who answers domain questions today, and what do they usually get asked?
+- Does a merge to main deploy to production? Which repos, if any, may an approver merge on its own later, and up to
+  what risk? Which paths must always go to a person (migrations, auth, billing, infrastructure, anything else)?
+- Which review lenses matter here (code, security, data, product, our domain), and when should each run?
 
 Tools
 - Tracker: which one, and can I add board columns? Does it send webhooks?
@@ -45,9 +48,10 @@ People
 
 ## 3. Write CONTRACT.md first
 Before any code, write CONTRACT.md for my version: the job record and its states, job kinds, the outcome table
-(outcome, column, what the console does), the agent tool list with schemas, the inbound webhook (with signature),
-the sweeper rules and every limit (concurrency cap, idle park, hard cap, attempts, per-tool caps). Use docs/03, 04,
-06 and 09 as the template and my answers as the content. Show it to me and wait for my approval. From then on,
+(outcome, column, what the console does), the pipeline's stages, the approver's policy, the agent tool list with
+schemas, the inbound webhook (with signature), the sweeper rules and every limit (concurrency cap, idle park, hard
+cap, attempts, gate and review rounds, the auto-merge cap, per-tool caps). Use docs/03, 04, 06, 09 and 13 as the
+template and my answers as the content. Show it to me and wait for my approval. From then on,
 change CONTRACT.md first and the code second.
 
 ## 4. Build in phases (docs/11-build-order.md)
@@ -57,6 +61,8 @@ check fails, stop and tell me. Don't work around it.
 
 Rules while building
 - The console's code does all tracker writes for a job's own ticket. Agents report one structured outcome.
+- The console, not an agent, reads CI. Reviewers report their own verdicts. Agents never merge; the console merges
+  only under the approver's policy in code, and auto-merge stays off for every repo until I turn it on.
 - Every job runs in its own fresh sandbox. Agents never run on the console's host, next to its secrets.
 - No secret is written to a sandbox's disk or put on a command line.
 - Sandboxes hold no production credentials. Production is reached only through console tools, and each call

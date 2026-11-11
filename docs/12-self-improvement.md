@@ -10,7 +10,7 @@ person approves every edit, and a chart shows whether it helped.
   that jobs got slower or more expensive. Grading the transcript finds what the summary hides.
 - **The transcripts are already here.** Every job's full event log, tool calls, outcome, PR and ticket move live in
   the console DB. There's nothing to collect; there's only something to read.
-- **Prompts are the process, so they're what to tune.** A fix to `lab.md` reaches every future lab job. Most
+- **Prompts are the process, so they're what to tune.** A fix to the build prompt reaches every future build job. Most
   failures trace back to one missing or misleading line.
 - **Memory you can't see isn't enough.** An agent that "learns overnight" changes in ways nobody can review. Here
   every change is a prompt diff a person approves, and every score is tied to the prompt version that produced it.
@@ -45,13 +45,15 @@ judge honest.
 | Fact | From |
 |---|---|
 | **Outcome** | Reached To Review or Done, or ended in Needs Human, `failed`, the 8h cap, or no outcome |
-| **Attempts** | Lab: 1, 2 or 3 of 3 |
+| **Attempts** | Build: 1, 2 or 3 of 3 |
+| **Rounds** | Build: red gate rounds and review rounds before passing |
+| **Approver** | Build: merged or escalated, and whether a person later merged what it escalated or reverted what it merged |
 | **Human cost** | Steers, questions answered, permission prompts, follow-up runs after the outcome |
 | **Repeated permission prompts** | The same tool asked more than once: the template's allow/deny list needs fixing, not the prompt |
 | **Tool failures** | Failed calls ÷ total, and the longest run of failures in a row |
 | **Cost** | Tokens and wall time, compared within one job kind |
-| **PR fate** | Filled in later: merged or closed, review rounds, CI red on the first push |
-| **Plan accuracy** | Triage: the plan approved from Plan Review as written, edited, or rejected |
+| **PR fate** | Filled in later: merged or closed, a person's review comments, CI red on the first push |
+| **Plan accuracy** | Build: the plan approved from Plan Review as written, edited, or rejected |
 
 **Outcome rate is the headline number.** Rubric scores explain it; they never replace it.
 
@@ -66,10 +68,11 @@ returns pass or fail with a short reason. Each job kind has its own set.
 | **Instruction adherence** | all | It broke a rule in its prompt or `common.md`. The reason quotes the line it missed or that misled it |
 | **Unmentioned workarounds** | all | It hit a roadblock, got around it, and the outcome doesn't say so |
 | **Report quality** | all | The tldr isn't plain, there's more than one ask, or it claims what it didn't verify |
-| **Scope** | lab | It changed things the ticket didn't ask for |
-| **Test proportionality** | lab | Redundant tests, or none where a test was due |
-| **Verification evidence** | lab, review | "Works" with no run, no CI on the tested commit, no before/after |
-| **Routing** | triage | What happened to the ticket afterwards says the route was wrong |
+| **Scope** | build | It changed things the ticket didn't ask for |
+| **Test proportionality** | build | Redundant tests, or none where a test was due |
+| **Verification evidence** | build, review | "Works" with no run, no failing test first, no before/after |
+| **Intake** | build | What happened to the ticket afterwards says intake was wrong: the split, the risk rating, or the reviewers it picked |
+| **Review quality** | build, review | A reviewer passed what a later round or a person caught, or sent back code that was fine |
 
 Start with the first three. They produce the most actionable reasons.
 

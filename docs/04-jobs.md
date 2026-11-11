@@ -25,7 +25,11 @@ job survives restarts and idle time.
 | Field | Type | Notes |
 |---|---|---|
 | `id` | text | `job_<ulid>` |
-| `kind` | enum | `triage`, `lab`, `review`, `test`, `umbrella`, `error-sweep` |
+| `kind` | enum | `build`, `review`, `test`, `error-sweep` |
+| `stage` | enum \| null | build jobs: `intake`, `build`, `gate`, `review`, `approve`. Every change is a `stage` event `{from, to, why}` |
+| `rounds` | json | `{gate, review}`: red CI handed back (cap 5) and review changes handed back (cap 3) |
+| `gate` | json \| null | from the first PR on: the PRs and the commit each was checked at, the lenses, the reviews, the deploy watch |
+| `umbrella` | bool | a build job on a parent that sorts its sub-issues ([Epics and umbrellas](07-epics-and-umbrellas.md)) |
 | `issue_id`, `identifier`, `title`, `url`, `parent_id` | text | from the tracker event; null for ticketless jobs |
 | `owner` | text | the person the job acts for (whose subscription, whose name) |
 | `state` | enum | see below |
@@ -38,7 +42,7 @@ job survives restarts and idle time.
 | `pid` | int \| null | local pid of the agent process (or its ssh wrapper) while it runs |
 | `hook_key` | text \| null | `<issue_id>:<to_state>`, for idempotency |
 | `base_branch` | text \| null | `feature/<parent>` for an epic child or epic final, else main |
-| `attempts` | int | Lab: failed fix attempts so far |
+| `attempts` | int | build: failed fix attempts so far |
 | `outcome` | json \| null | the last `report_outcome` payload |
 | `wip` | json \| null | `[{repo, branch, sha}]` pushed and verified before parking |
 | `park_requested_at` | time \| null | when the sweeper asked the agent to push WIP |
@@ -57,7 +61,7 @@ stateDiagram-v2
   waiting_input --> running : a person replies
   waiting_input --> parked : idle 2h (WIP pushed and verified, VM deleted)
   parked --> provisioning : a person sends a message (fresh clone, resume)
-  running --> done : outcome applied, or a person ends it
+  running --> done : outcome applied, merged or escalated, or a person ends it
   waiting_input --> done : a person ends it
   running --> needs_human : 8h cap, crash recovery, gave up
   running --> failed : agent process crashed
@@ -72,6 +76,9 @@ stateDiagram-v2
 - **`parked`** is neither live nor terminal. It holds no VM, and a message wakes it.
 - **`needs_human`** (the job state) is for console-level trouble. An agent asking a question ends the job `done`
   with its *ticket* in Needs Human.
+- **Through the pipeline.** A build job that reports `to_review` stays live while the gate, the reviews and the
+  approver run. Its turn ends and it sits in `waiting_input` until the console hands it a red log or review findings,
+  which start the next turn. It ends `done` when the approver merges or escalates.
 - **Resume.** A message to a `needs_human`, `done`, `failed` or `canceled` job that has a `session_id` resumes
   that session on a fresh sandbox, back through the cap.
 
@@ -130,7 +137,12 @@ sequenceDiagram
 | Concurrency | `MAX_JOBS` = 3 | the rest queue |
 | Idle | 2h in running/waiting_input with no event | park |
 | Run length | 8h from `started_at` | end, delete VM, `needs_human` |
-| Lab attempts | 3 `attempt_failed` | ticket to Needs Human |
+| Fix attempts | 3 `attempt_failed` | ticket to Needs Human |
+| Gate rounds | 5 red CI rounds | ticket to Needs Human |
+| Gate time | CI not finished within 90 min | ticket to Needs Human |
+| Review rounds | 3 rounds of changes | ticket to Needs Human, with the findings |
+| Auto-merges | a daily cap (mine: 3) | the approver escalates |
+| Deploy watch | 2h after an auto-merge | red: ticket to Needs Human, the repo's auto-merge off |
 | Stuck ticket | in an agent column 10 min with no live job | ticket to Needs Human |
 
 ### Events
@@ -145,6 +157,8 @@ Append-only `job_events (seq, job_id, at, type, data)`, also streamed to the UI 
 | `interrupt` | a person stopped the turn |
 | `permission_request` / `permission_response` | the tool, its input, allow / deny / aborted |
 | `state` | `{from, to}` |
+| `stage` | build jobs: `{from, to, why}` |
+| `review` | one reviewer's verdict, summary and findings |
 | `log` | the console's own note (provisioning output, sweeper actions, refusals) |
 | `summary` | a small model's one-line summary of a run of tool calls, for the chat |
 | `runner` | fallback mode: a routine's hook event |

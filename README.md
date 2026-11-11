@@ -25,31 +25,19 @@ flowchart LR
   A -->|report_outcome| C
   C -->|comment, move, sub-issues| T2[(Tracker)]
   A -->|PR with proof| G[(Code host)]
+  C -->|reads CI, merges by policy| G
   You([You]) <-->|watch, steer, approve| C
 ```
 
-## Where the pipeline is heading
+## The pipeline
 
-Version 2 is one job per ticket: intake, a builder, a gate the console checks, parallel reviewers that send work back
-to the same builder, and an approver that merges low-risk work on its own. It borrows the gate, reviewers and approver
-from the software factory [ZazenCodes](https://www.youtube.com/@ZazenCodes) builds, which helped me hone and guide my
-own process. [Doc 13](docs/13-pipeline-v2.md) compares it with today's version.
+A ticket runs as one build job on its own sandbox: intake decides whether and how to do it, a builder writes the
+change, the console's gate reads CI, parallel reviewers send changes back to the same builder, and an approver
+merges or hands it to a person. Auto-merge is opt-in per repo, and everything escalated lands in To Review.
 
-```mermaid
-flowchart LR
-  IN[Inputs<br/>tickets, error sweep, schedules] --> INT[Intake<br/>worth it? scope? risk?]
-  INT -->|too big, or a parent| SP[Split<br/>starts sub-issues itself]
-  SP -->|each its own job| IN
-  INT -->|questions| NH{{Needs you}}
-  INT --> B[Builder<br/>spec in the PR, then build]
-  B --> G[Gate<br/>console checks CI]
-  G -.->|red: the failing log| B
-  G -->|green| R[Reviews<br/>parallel, picked by risk]
-  R -.->|changes| B
-  R --> AP[Approver]
-  AP -->|low risk| AM[Auto-merge]
-  AP -->|escalate| TRV{{To Review<br/>a person}}
-```
+![The pipeline: inputs, intake, split, builder, gate, parallel reviews, approver, auto-merge or To Review](docs/img/pipeline.png)
+
+[Doc 13](docs/13-pipeline.md) walks through each stage.
 
 ## Read in this order
 
@@ -57,7 +45,7 @@ flowchart LR
 |---|---|---|
 | 1 | [Why build your own](docs/01-why.md) | The philosophy: codify your process, own the robot, let code do the books |
 | 2 | [Architecture](docs/02-architecture.md) | The pieces, the interfaces between them, a ticket's path end to end |
-| 3 | [Board and routing](docs/03-board-and-routing.md) | Columns, the triage decision, outcomes, how the console writes to the tracker |
+| 3 | [Board and routing](docs/03-board-and-routing.md) | Columns, outcomes, how the console writes to the tracker |
 | 4 | [Jobs](docs/04-jobs.md) | The job record, state machine, concurrency cap, restart recovery, parking |
 | 5 | [Sandboxes](docs/05-sandboxes.md) | A fresh VM per job: template, clone, delete safety, running the agent remotely, secrets |
 | 6 | [Agent tools, prompts and experts](docs/06-agent-tools-and-prompts.md) | The console's tool contract, how prompts compose, "experts before people" |
@@ -67,7 +55,7 @@ flowchart LR
 | 10 | [Security and billing](docs/10-security-and-billing.md) | Threat model, guardrails, subscription billing and the fallback |
 | 11 | [Build order](docs/11-build-order.md) | Phases, go/no-go checks, and what I'd do differently |
 | 12 | [Self-improvement](docs/12-self-improvement.md) | Grading every run, an improver that proposes prompt edits, and scores charted against prompt versions |
-| 13 | [The pipeline, version 2](docs/13-pipeline-v2.md) | Today's pipeline beside a simpler one: one job per ticket, a gate, parallel reviewers, an approver that can merge |
+| 13 | [The pipeline](docs/13-pipeline.md) | One job per ticket: intake, builder, gate, parallel reviewers, approver |
 
 Then: [`prompts/`](prompts/) holds the agent prompts as templates, and
 [`BUILD-WITH-YOUR-AGENT.md`](BUILD-WITH-YOUR-AGENT.md) is a prompt you can hand to your own coding agent to start
@@ -88,7 +76,11 @@ The docs use these provider-neutral words. "What I used" notes say what filled e
 | **Template** | The VM every sandbox is cloned from: repos, toolchain, app stack, seed data, headless Chrome | A long-lived exe.dev VM, rebuilt by script |
 | **Transport** | How the console starts the agent in a sandbox | A generated wrapper that runs `claude` over ssh |
 | **Job** | One agent run on one ticket in one sandbox, with its full transcript | A row plus an append-only event log |
-| **Job kind** | Which prompt and rules a job runs with: triage, lab, review, test, umbrella, error-sweep | `prompts/*.md` |
+| **Job kind** | Which prompt and rules a job runs with: build, review, test, error-sweep | `prompts/*.md` |
+| **Stage** | Where a build job is in the pipeline: intake, build, gate, review, approve | A field on the job |
+| **Gate** | The console's own check of CI on a PR's latest commit; no model decides | A 30-second schedule |
+| **Reviewer** | A subagent with one lens (code, security, data, product, domain) that reports its own verdict | `report_review` tool |
+| **Approver** | A policy in code, then a model, that merges or escalates to a person | Auto-merge off until a repo opts in |
 | **Outcome** | The single structured result an agent reports; the console turns it into tracker writes | `report_outcome` tool |
 | **Expert** | A read-only subagent that makes a judgment call so the job doesn't wait on a person | `prompts/experts/*.md` |
 | **Sweeper** | The console's periodic tick: stuck tickets, idle jobs, time caps, epic advancement | Every 5 minutes |

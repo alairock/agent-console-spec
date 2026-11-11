@@ -5,8 +5,9 @@ The agent's world is three things: the **prompt** for its job kind, the **tools*
 
 ## Why
 
-- **Tools are the contract.** The agent can't comment on or move its own ticket. It calls `report_outcome` once,
-  with a fixed schema, and the console does the rest. That one choke point makes runs comparable, auditable and
+- **Tools are the contract.** The agent can't comment on or move its own ticket. It calls `report_outcome` with a
+  fixed schema, and the console does the rest. Reviewers call `report_review`, so each verdict is on record in
+  the reviewer's own words. That one choke point makes runs comparable, auditable and
   safe to automate around.
 - **The console proxies anything that needs a credential.** Tracker attachments, team chat and error-tracker reads
   go through console tools that use the owner's connection. The sandbox never holds those tokens, and every read
@@ -25,7 +26,8 @@ permission flow.
 
 | Tool | Who gets it | Does |
 |---|---|---|
-| `report_outcome` | every job | The one result. Ends the job's work; the console applies it after the turn ends |
+| `report_outcome` | every job | The result. The console applies it after the turn ends; `to_review` submits the PRs to the gate |
+| `report_review` | reviewer subagents in a build or review job | One lens's verdict and findings. Refused outside the review stage. See [The pipeline](13-pipeline.md#contract) |
 | `report_wip` | every sandboxed job | When asked to park: the branches it pushed, which the console verifies |
 | `attach_screenshots` | every job | Upload proof to the ticket now (follow-up chats); at the end use `report_outcome.screenshots` |
 | `tracker_issue` | every job | Read another ticket: description, comments, children, links |
@@ -35,20 +37,22 @@ permission flow.
 | `chat_search`, `chat_thread` | every job | Read team chat for context. Never DMs, always logged |
 | `errors_list`, `error_issue` | every job | Read the error tracker (stack, breadcrumbs, tags) |
 | `error_resolve`, `file_error_ticket` | error sweep only | See [Scheduled work](09-scheduled-work.md) |
-| `start_app` | triage | Bring the stack up on demand when triage must see the UI |
-| `load_snapshot`, `fetch_prod_documents` | triage, lab | Scrubbed prod data, capped. **Needs a person's approval** |
-| `prod_query` | triage, lab | One read-only SQL query against production. **Needs a person's approval** |
+| `start_app` | build | Bring the stack up on demand on the job's own sandbox |
+| `load_snapshot`, `fetch_prod_documents` | build | Scrubbed prod data, capped. **Needs a person's approval** |
+| `prod_query` | build | One read-only SQL query against production. **Needs a person's approval** |
 | `propose_prompt_edit` | improver only | Save a *proposed* prompt version citing the failing jobs. Never live until a person approves. See [Self-improvement](12-self-improvement.md) |
 
 ### `report_outcome`
 
 ```ts
 report_outcome({
-  outcome: 'to_review' | 'plan_review' | 'agent_lab' | 'needs_human' | 'attempt_failed' | 'umbrella',
+  outcome: 'to_review' | 'plan_review' | 'needs_human' | 'attempt_failed' | 'umbrella',
   tldr: string,          // ≤300 chars, 1–2 plain sentences: the result and what it means. No paths, IDs, flags.
   ask?: string,          // ≤300 chars, only if a person is needed: ONE yes/no question + your recommendation + cost/risk
   summary: string,       // markdown details, folded under "Details" in the comment
-  pr_urls?: string[],
+  pr_urls?: string[],                                  // to_review: the PRs the gate checks
+  risk?: 'low' | 'medium' | 'high',                    // to_review: intake's rating; the approver's policy reads it
+  reviewers?: ('security'|'data'|'product'|'domain')[], // to_review: lenses on top of code review
   screenshots?: string[],                              // ≤8 absolute paths in the sandbox, uploaded to the ticket
   sub_issues?: { title, description }[],               // plan_review: one per PR
   children?: { id, route: 'agent'|'agent_draft'|'human', reason }[],  // umbrella: exactly one per listed sub-issue
@@ -60,7 +64,9 @@ Rules the console enforces:
 - Validate against the job kind and reject back to the agent with the reason. For example, an umbrella `children` list that
   doesn't match the listed sub-issues one-to-one gets rejected.
 - Apply the outcome **after the turn that reported it ends**, so the agent's closing sentence lands in the transcript.
-- `attempt_failed` (lab) increments `attempts`. Below 3, the console tells the agent to start a fresh attempt. At 3
+- `to_review` needs `pr_urls` and `risk`. It moves the job to the gate and the run stays up (see
+  [The pipeline](13-pipeline.md)).
+- `attempt_failed` increments `attempts`. Below 3, the console tells the agent to start a fresh attempt. At 3
   it applies `needs_human`.
 - The comment the console posts is: tldr, then the ask (if any) in bold, then `<details>` with the summary, then
   PR links and screenshots, then the signature line.
@@ -101,16 +107,20 @@ gate means nothing.
 ```mermaid
 flowchart LR
   C[common.md<br/>hard rules · CI as test runner · tools<br/>experts · before-you-report · writing rules] --> SYS
-  K[kind.md<br/>triage · lab · review · test · umbrella · error-sweep] --> SYS
-  A["add-ons<br/>epic-child / epic-final<br/>({{base_branch}})"] -.-> SYS
+  K[kind.md<br/>build · review · test · error-sweep] --> SYS
+  A["add-ons<br/>umbrella sort, epic-child, epic-final<br/>({{base_branch}})"] -.-> SYS
   R["repo list line<br/>(repos sandboxes can reach)"] --> SYS
   SYS[System prompt] --> AG[Agent]
   T[Ticket: title, description,<br/>comments with authors,<br/>handoff notes] --> FM[First user message] --> AG
   E[experts/*.md + experts/common.md] --> SUB[SDK subagents] --> AG
+  RV[reviewers/*.md<br/>one lens each] --> SUB
 ```
 
-- **Frontmatter** on each kind sets `model` (triage and experts on the strongest model; summaries on a small one)
-  and `disallowedTools` (umbrella and error-sweep can't edit files, review can't drive the browser).
+- **Frontmatter** on each kind sets `model` (build, reviewers, the approver and experts on the strongest model;
+  summaries on a small one) and `disallowedTools` (the umbrella sort and error-sweep can't edit files, review can't
+  drive the browser).
+- **Reviewers and the approver are prompt files too.** One file per lens, passed to the job as subagents beside the
+  experts, and one for the approver model with its answer shape.
 - **The first message is the ticket**, including every comment with its author. Comments the console signed are
   shown as `<name> (an agent, not a person)` so agents don't treat an earlier agent's guess as a human decision.
 - **The project's own instruction files still load.** The runtime loads the repo's skills, subagents and
@@ -155,9 +165,10 @@ regulatory interpretation with liability; irreversible production data changes; 
 billing or money; or a true one-way door with evidence split evenly. Low confidence alone is not a reason to
 escalate. The expert decides and says what a reviewer should check.
 
-**Why it's safe:** a person reviews the PR or plan anyway. A wrong expert call costs one review comment, while a
-question parked on a person costs days. Every expert decision goes into the summary under **Decided by experts**
-(question, decision, expert, confidence), so the reviewer can overrule it without digging.
+**Why it's safe:** a person approves every plan, and every PR passes reviewers and an approver that keeps risky
+changes for a person. A wrong expert call costs one review comment, while a question parked on a person costs days.
+Every expert decision goes into the summary under **Decided by experts** (question, decision, expert, confidence),
+so the reviewers and the approver see it, and a person can overrule it without digging.
 
 **The domain expert is the interesting one.** Mine stood in for the one person on the team who knew the business
 domain cold. I wrote down how that person thinks: the rules, the edge cases, what "correct" means to customers, and
@@ -173,6 +184,6 @@ them.
   `report_outcome`.
 - `create_ticket` / `update_ticket` refuse agent columns.
 - A malformed `report_outcome` comes back to the agent as a tool error, and nothing is written to the tracker.
-- A triage run on a vague ticket shows at least one expert consultation and a **Decided by experts** list, and
+- A build job's intake on a vague ticket shows at least one expert consultation and a **Decided by experts** list, and
   its `ask` (if any) is a single yes/no question.
 - Every chat read and prod-data call appears as a visible line in the job's transcript.

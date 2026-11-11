@@ -28,14 +28,14 @@ flowchart LR
 | Screen | What matters |
 |---|---|
 | **Board** | Your tracker's columns, served from the API (search and filters run server side). Snooze hides a ticket until a time. |
-| **Ticket page** | Comments with agent comments colored by speaker and linked to their job. PRs with CI and deploy status, review and merge. A comment box whose send menu can also message the ticket's live agent or start Triage/Lab. |
+| **Ticket page** | Comments with agent comments colored by speaker and linked to their job. PRs with CI and deploy status, review and merge. A comment box whose send menu can also message the ticket's live agent or start a build job. A pipeline strip shows the stage, the gate's rounds and each reviewer's verdict. |
 | **Job chat** | See below. |
 | **Jobs list** | One row per run, labelled by what it *did* ("opened PR", "asked a question"), not by the column it set. |
 | **Usage** | Tokens per job, subscription limit windows per account, sandbox cost, per person. The billing proof (`apiKeySource`) per job. |
 | **Schedules** | Every recurring job with cadence, last result and next run. Pause, resume and run now. |
 | **Production access** | Every production read an agent asked for: the query or ids, the reason, who approved or denied it, the result. See [Production tools need a person](06-agent-tools-and-prompts.md#production-tools-need-a-person). |
 | **Self-improvement** | Scores per job kind over time with a marker at each prompt version, the proposals inbox, grader runs and failure themes. See [Self-improvement](12-self-improvement.md). |
-| **Settings** | Each person connects their own accounts. See [More than one person](#more-than-one-person). |
+| **Settings** | Each person connects their own accounts. See [More than one person](#more-than-one-person). Admins set the pipeline: auto-merge per repo, risk limits, the daily cap, reserved paths (see [Settings to choose](13-pipeline.md#settings-to-choose)). |
 
 ## The job chat
 
@@ -59,8 +59,10 @@ Making a long transcript readable:
   into one or two plain sentences. The chat shows the summary and expands it to the calls. Only generate these for
   jobs someone opens.
 - **Fold noisy output.** Long scripts (stack start, snapshot load) fold into one line with duration and line count.
-- **Header:** work time (provisioning + running across all turns), job kind, the repos touched, and a "waiting on
-  you · 12m" line when it's your turn.
+- **Header:** work time (provisioning + running across all turns), job kind, the pipeline stage, the repos touched,
+  and a "waiting on you · 12m" line when it's your turn.
+- **Pipeline events** show inline: each stage change with its reason, the gate's red log, and each reviewer's verdict
+  as a card with its findings.
 - **"What's running?"** The runtime reports that a tool is running, not its output. A peek button runs `ps` in the
   sandbox and shows the process tree under the tool call.
 - **Screenshots** show as thumbnails under the tool call that took them.
@@ -97,7 +99,7 @@ The console usually writes to the tracker as one account (or as the job's owner)
 looks like a person wrote it. So every console-written comment ends with a signature line:
 
 - `— Agent Console · <kind> job [<id>](<link>)` for the console's own bookkeeping
-- `— Triage agent · job [...]`, `— Lab agent · job [...]`, `— Review agent · ...` for an agent's own words
+- `— Build agent · job [...]`, `— Sort agent · job [...]`, `— Review agent · ...` for an agent's own words
 
 The UI strips the line, renders the comment with an agent author and a job link, and colors it by speaker. Agents
 reading a ticket see `<name> (an agent, not a person)`.

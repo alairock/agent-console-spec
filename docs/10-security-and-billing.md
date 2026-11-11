@@ -10,7 +10,8 @@ privileged system whose blast radius you design on purpose.
 | The console and its secrets | An agent (prompt-injected by a ticket, comment or web page) reaching them | Agents never run on the console host. Each job runs in its own sandbox. Job processes never inherit the console's secrets |
 | Production data | An agent writing to or deleting it | No prod credentials anywhere an agent runs. Prod data reaches agents only through console tools (scrubbed snapshots, capped document copies, read-only queries), and every such call waits for a person |
 | Production reads | Nobody knowing what was read, or why | An append-only Production access log: what ran, the agent's reason, who approved it, what came back |
-| Main branch | An agent merging bad code | Agents can't merge to main. They open PRs, and people merge |
+| Main branch | An agent merging bad code | Agents can't merge. They open PRs. Only the console merges, and only when a policy in code allows it: auto-merge on for that repo, risk within its limit, every reviewer passed, no reserved path, under the daily cap |
+| Production, through a merge | A bad auto-merge deploying | Auto-merge is off until a person turns it on per repo. The console watches the deploy, and a red one turns that repo's auto-merge back off |
 | The UI | Anyone on the internet | A login proxy in front, plus an email allowlist. The UI port is never public |
 | Webhooks | Forged events starting jobs | One public port serving only signed hooks (HMAC over the raw body, 1 MiB cap). Everything else returns 404 |
 | People's credentials | Leaking from sandboxes, or one person acting as another | Tokens go to sandboxes per call over stdin and are never written to disk. Third-party tokens sit behind a credential proxy, and the console holds only the proxy URL. Each job writes as its owner |
@@ -38,6 +39,7 @@ flowchart LR
   AG -. never .-> SEC
   AG -->|push branches, open PRs| CH[(Code host)]
   AG -. never .-> MAIN[main]
+  CON -->|merge, only by policy| MAIN
   AG -. never .-> PROD[(prod writes)]
 ```
 
@@ -45,13 +47,14 @@ flowchart LR
 
 | Agents never... | Instead they... | Enforced by |
 |---|---|---|
-| merge to main | open a PR | Code host branch protection; no merge rights for the bot |
+| merge | open a PR and report `to_review` | Code host branch protection; no merge rights for the sandbox's identity. The console's own identity merges, under the approver's policy |
+| grade their own work | let reviewer subagents report verdicts, and the console read CI | `report_review` comes only from reviewers; the gate reads CI itself |
 | write production data | write the analysis and a draft migration for a person | No credentials; prompt |
 | read production without a person saying yes | ask through a prod tool, with a reason | Prod tools are never auto-approved; the approver is recorded |
 | run paid or expensive jobs (benchmarks, bulk model calls) | stop and ask | Prompt; disallowed tools where you can name them |
-| change auth, permissions or billing on their own | route to `needs_human` with a plan | Triage rules; expert escalation rules |
+| change auth, permissions or billing without a person | rate the risk high and add the security reviewer | Intake rules; reserved paths keep those changes out of auto-merge; expert escalation rules |
 | keep going after 3 failed fix attempts | stop and summarize what they tried | Console counts attempts |
-| say "done" without proof | attach tests, CI on the tested SHA, before/after | Prompt; reviewer |
+| say "done" without proof | attach tests and before/after; CI is read on the latest commit | The gate; reviewers |
 | put tickets into agent columns | file in Backlog | Tool refuses |
 | run full test suites in the sandbox | push early and let CI run them | Blocked commands in the template's settings |
 | read DMs | read channels the owner can see | Tool scope |
@@ -71,6 +74,8 @@ Be honest about these in your own version:
   with the same care.
 - **Branch pushes from sandboxes may go through one shared bot identity**, even when tracker writes go out as
   the owner.
+- **The console's code-host identity can merge to main.** It needs to, for auto-merge. Keep the policy in code, not
+  in a prompt; keep the reserved paths broad; and keep the global switch where an admin can reach it fast.
 - **The webhook trusts the relay's view of "who moved it".** The console re-reads the tracker's history to
   attribute ownership, rather than trusting the payload.
 
