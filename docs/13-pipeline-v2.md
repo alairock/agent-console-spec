@@ -58,7 +58,7 @@ flowchart LR
   R --> AP[Approver<br/>merge or escalate]
   AP -->|low risk| AM[Auto-merge]
   AP -->|escalate| TRV{{To Review<br/>a person}}
-  AM --> AF[After merge<br/>watch the deploy, post the resolution;<br/>new errors become tickets]
+  AM --> AF["After merge<br/>watch the deploy, post the resolution,<br/>new errors become tickets"]
   HP[PR a person opened] --> G
   B -->|3 failed rounds| NH
 ```
